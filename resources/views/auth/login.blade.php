@@ -1,0 +1,328 @@
+@extends('layouts.app')
+
+@section('title', 'Masuk - Mappy Path')
+
+@push('head')
+<style>
+:root {
+    --primary: #372466;
+    --primary-light: #4e35a0;
+    --accent: #7c5cbf;
+    --accent-light: #a78bd4;
+    --white: #ffffff;
+    --gray-100: #f4f1ff;
+    --gray-200: #e4e0f5;
+    --gray-300: #c8bfe8;
+    --gray-400: #9589b8;
+    --gray-500: #6d5f9a;
+    --gray-700: #332a5c;
+    --gray-800: #1e1640;
+    --danger: #ef4444;
+    --font: 'Poppins', sans-serif;
+}
+
+body { background: var(--white); min-height: 100vh; }
+
+.login-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    min-height: 100vh;
+}
+
+/* LEFT PANEL */
+.login-left {
+    background: linear-gradient(135deg, #1e1640 0%, var(--primary) 50%, var(--primary-light) 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2.5rem;
+    position: relative;
+    overflow: hidden;
+}
+.login-left::before {
+    content: '';
+    position: absolute;
+    top: -30%; right: -20%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+}
+.login-left::after {
+    content: '';
+    position: absolute;
+    bottom: -20%; left: -10%;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.left-header { display: flex; align-items: center; gap: 0.75rem; z-index: 1; }
+.left-logo {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 800; color: white; font-size: 0.95rem; object-fit: contain;
+}
+.left-brand { font-size: 1.2rem; font-weight: 700; color: white; }
+
+.left-content { z-index: 1; }
+.left-tagline {
+    font-size: clamp(1.3rem, 2.5vw, 1.7rem);
+    font-weight: 700; color: white; line-height: 1.4; margin-bottom: 1rem;
+}
+.left-sub {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.75);
+    line-height: 1.6; margin-bottom: 1.5rem;
+}
+
+/* Stat mini cards for login */
+.login-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+.login-stat-card {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 14px;
+    padding: 1rem;
+    backdrop-filter: blur(4px);
+}
+.login-stat-number {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: white;
+    line-height: 1;
+}
+.login-stat-label {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.65);
+    margin-top: 0.25rem;
+}
+
+.left-footer { font-size: 0.78rem; color: rgba(255,255,255,0.5); z-index: 1; }
+
+/* RIGHT PANEL */
+.login-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem 4rem;
+    background: var(--white);
+    overflow-y: auto;
+}
+.login-form-box { width: 100%; max-width: 420px; }
+
+.form-title {
+    font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.4rem;
+}
+.form-subtitle { font-size: 0.95rem; color: var(--gray-400); margin-bottom: 2.5rem; }
+
+.form-group { margin-bottom: 1.4rem; }
+.form-label {
+    display: block; font-size: 0.875rem; font-weight: 600;
+    color: var(--gray-700); margin-bottom: 0.5rem;
+}
+.form-input {
+    width: 100%; padding: 0.8rem 1rem;
+    border: 1.5px solid var(--gray-200); border-radius: 10px;
+    font-family: var(--font); font-size: 0.9rem; color: var(--gray-800);
+    background: var(--white); transition: all 0.2s; outline: none;
+}
+.form-input::placeholder { color: var(--gray-300); }
+.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(55,36,102,0.08); }
+.form-input.error { border-color: var(--danger); }
+
+.password-field { position: relative; }
+.password-toggle {
+    position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%);
+    cursor: pointer; color: var(--gray-400); background: none; border: none;
+    padding: 0.25rem; display: flex; align-items: center; justify-content: center;
+    transition: color 0.2s;
+}
+.password-toggle:hover { color: var(--primary); }
+.password-field .form-input { padding-right: 2.8rem; }
+
+.remember-row {
+    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.75rem;
+}
+.remember-row input[type="checkbox"] {
+    width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;
+}
+.remember-row label { font-size: 0.85rem; color: var(--gray-500); cursor: pointer; }
+
+.btn-login {
+    width: 100%; padding: 0.9rem; background: var(--primary);
+    color: white; border: none; border-radius: 10px;
+    font-family: var(--font); font-size: 1rem; font-weight: 700;
+    cursor: pointer; transition: all 0.25s; letter-spacing: 0.01em;
+}
+.btn-login:hover {
+    background: var(--primary-light); transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(55,36,102,0.3);
+}
+.btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
+
+.register-row {
+    text-align: center; margin-top: 1.5rem;
+    font-size: 0.875rem; color: var(--gray-400);
+}
+.register-row a { color: var(--primary); font-weight: 700; text-decoration: none; }
+.register-row a:hover { text-decoration: underline; }
+
+.alert-danger {
+    background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
+    border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.875rem;
+    margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .login-wrapper { grid-template-columns: 1fr; }
+    .login-left { padding: 2rem; min-height: 220px; justify-content: center; gap: 1rem; }
+    .left-content { text-align: center; }
+    .login-stats { max-width: 280px; margin: 0.5rem auto 0; }
+    .left-footer { display: none; }
+    .login-right { padding: 2rem 1.5rem; }
+}
+@media (max-width: 480px) {
+    .login-right { padding: 2rem 1.25rem; }
+    .form-title { font-size: 1.8rem; }
+    .login-left { min-height: 180px; }
+    .left-tagline { font-size: 1.2rem; }
+}
+</style>
+@endpush
+
+@section('content')
+<div class="login-wrapper">
+
+    <!-- LEFT -->
+    <div class="login-left">
+        <div class="left-header">
+            <div class="left-icon">
+                <img src="img/Icon1.png" alt="Logo Mappy Path">
+            </div>
+            <span class="left-brand">Mappy Path</span>
+        </div>
+
+        <div class="left-content">
+            <div class="left-tagline">Halo, sudah kembali! 👋</div>
+            <p class="left-sub">Yuk, lanjut belajar dari mana kamu berhenti.</p>
+            <div class="login-stats">
+                <div class="login-stat-card">
+                    <div class="login-stat-number">19</div>
+                    <div class="login-stat-label">📚 Materi tersedia</div>
+                </div>
+                <div class="login-stat-card">
+                    <div class="login-stat-number">4 CP</div>
+                    <div class="login-stat-label">📋 Capaian Pembelajaran</div>
+                </div>
+                <div class="login-stat-card">
+                    <div class="login-stat-number">1K+</div>
+                    <div class="login-stat-label">🎓 Siswa aktif</div>
+                </div>
+                <div class="login-stat-card">
+                    <div class="login-stat-number">100%</div>
+                    <div class="login-stat-label">✨ Gratis selamanya</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="left-footer">© 2026 Mappy Path. All rights reserved.</div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="login-right">
+        <div class="login-form-box">
+            <h1 class="form-title">Masuk</h1>
+            <p class="form-subtitle">Masuk ke akun</p>
+
+            @if ($errors->any())
+                <div class="alert-danger">
+                    ⚠️ {{ $errors->first() }}
+                </div>
+            @endif
+
+            @if (session('status'))
+                <div style="background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;border-radius:10px;padding:.85rem 1rem;font-size:.875rem;margin-bottom:1.5rem;">
+                    ✅ {{ session('status') }}
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login.post') }}">
+                @csrf
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input
+                        type="text"
+                        id="email"
+                        name="email"
+                        class="form-input {{ $errors->has('email') ? 'error' : '' }}"
+                        placeholder="Masukkan email"
+                        value="{{ old('email') }}"
+                        autocomplete="username"
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <div class="password-field">
+                        <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            class="form-input {{ $errors->has('password') ? 'error' : '' }}"
+                            placeholder="Masukkan password"
+                            autocomplete="current-password"
+                        >
+                        <button type="button" class="password-toggle" onclick="togglePassword()" id="toggleBtn">
+                            <svg id="eyeOff" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+                                <line x1="1" y1="1" x2="23" y2="23"/>
+                            </svg>
+                            <svg id="eyeOn" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:none">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                                <circle cx="12" cy="12" r="3"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="remember-row">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Ingat saya</label>
+                </div>
+
+                <button type="submit" class="btn-login">Masuk</button>
+            </form>
+
+            <div class="register-row">
+                Tidak Punya Akun? <a href="{{ route('register') }}">Daftar</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function togglePassword() {
+    const input = document.getElementById('password');
+    const eyeOff = document.getElementById('eyeOff');
+    const eyeOn = document.getElementById('eyeOn');
+    if (input.type === 'password') {
+        input.type = 'text';
+        eyeOff.style.display = 'none';
+        eyeOn.style.display = 'block';
+    } else {
+        input.type = 'password';
+        eyeOff.style.display = 'block';
+        eyeOn.style.display = 'none';
+    }
+}
+</script>
+@endsection

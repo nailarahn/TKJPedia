@@ -1,0 +1,198 @@
+<?php
+
+namespace Database\Seeders;
+
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\Roadmap;
+use App\Models\Stage;
+use App\Models\UserRoadmap;
+use App\Models\UserStage;
+use App\Models\Target;
+use App\Models\Badge;
+use App\Models\LearningLog;
+
+class DatabaseSeeder extends Seeder
+{
+    public function run(): void
+    {
+        // ── USERS ─────────────────────────────────────────────
+        $user = User::create([
+            'name'     => 'Gema Pelajar',
+            'username' => 'tupaikidal',
+            'email'    => 'tupaikidal@mappypath.id',
+            'password' => Hash::make('Kambingguling_001'),
+            'role'     => 'student',
+        ]);
+
+        User::create([
+            'name'     => 'Admin MappyPath',
+            'username' => 'admin',
+            'email'    => 'admin@mappypath.id',
+            'password' => Hash::make('Admin@123'),
+            'role'     => 'admin',
+        ]);
+
+        // ── ROADMAPS ──────────────────────────────────────────
+        $roadmap1 = Roadmap::create([
+            'title'           => 'Jaringan Dasar TKJ',
+            'description'     => 'Pelajari dasar-dasar jaringan komputer mulai dari pengenalan hingga troubleshooting.',
+            'slug'            => 'jaringan-dasar-tkj',
+            'level'           => 'beginner',
+            'category'        => 'networking',
+            'total_stages'    => 8,
+            'estimated_hours' => 24,
+            'order'           => 1,
+        ]);
+
+        $roadmap2 = Roadmap::create([
+            'title'           => 'Pemrograman Web Dasar',
+            'description'     => 'Belajar HTML, CSS, JavaScript dari nol hingga bisa membuat website sederhana.',
+            'slug'            => 'pemrograman-web-dasar',
+            'level'           => 'beginner',
+            'category'        => 'programming',
+            'total_stages'    => 10,
+            'estimated_hours' => 30,
+            'order'           => 2,
+        ]);
+
+        $roadmap3 = Roadmap::create([
+            'title'           => 'Administrasi Server Linux',
+            'description'     => 'Kuasai administrasi server Linux untuk persiapan karir di bidang IT.',
+            'slug'            => 'administrasi-server-linux',
+            'level'           => 'intermediate',
+            'category'        => 'server',
+            'total_stages'    => 12,
+            'estimated_hours' => 40,
+            'order'           => 3,
+        ]);
+
+        // ── STAGES for Roadmap 1 ───────────────────────────────
+        $stages1 = [
+            ['title' => 'Pengenalan Jaringan Komputer', 'type' => 'video',    'estimated_minutes' => 30],
+            ['title' => 'Model OSI & TCP/IP',           'type' => 'video',    'estimated_minutes' => 45],
+            ['title' => 'IP Address & Subnetting',      'type' => 'article',  'estimated_minutes' => 60],
+            ['title' => 'Routing Dasar',                'type' => 'video',    'estimated_minutes' => 45],
+            ['title' => 'VLAN Configuration',           'type' => 'practice', 'estimated_minutes' => 90],
+            ['title' => 'Wireless Networking',          'type' => 'video',    'estimated_minutes' => 30],
+            ['title' => 'Network Security Basics',      'type' => 'article',  'estimated_minutes' => 40],
+            ['title' => 'Troubleshooting Jaringan',     'type' => 'practice', 'estimated_minutes' => 60],
+        ];
+
+        $stageIds1 = [];
+        foreach ($stages1 as $i => $s) {
+            $stage = Stage::create(array_merge($s, [
+                'roadmap_id'  => $roadmap1->id,
+                'description' => "Materi tentang {$s['title']}",
+                'order'       => $i + 1,
+            ]));
+            $stageIds1[] = $stage->id;
+        }
+
+        // ── STAGES for Roadmap 2 ───────────────────────────────
+        $stages2 = [
+            ['title' => 'HTML Dasar',        'type' => 'video',   'estimated_minutes' => 30],
+            ['title' => 'CSS Dasar',         'type' => 'video',   'estimated_minutes' => 45],
+            ['title' => 'JavaScript Dasar',  'type' => 'video',   'estimated_minutes' => 60],
+            ['title' => 'Responsive Design', 'type' => 'practice','estimated_minutes' => 45],
+            ['title' => 'PHP Dasar',         'type' => 'video',   'estimated_minutes' => 60],
+            ['title' => 'MySQL Dasar',       'type' => 'article', 'estimated_minutes' => 45],
+            ['title' => 'Laravel Intro',     'type' => 'video',   'estimated_minutes' => 90],
+            ['title' => 'REST API Basics',   'type' => 'video',   'estimated_minutes' => 60],
+            ['title' => 'Git & GitHub',      'type' => 'practice','estimated_minutes' => 45],
+            ['title' => 'Deploy Project',    'type' => 'practice','estimated_minutes' => 60],
+        ];
+
+        foreach ($stages2 as $i => $s) {
+            Stage::create(array_merge($s, [
+                'roadmap_id'  => $roadmap2->id,
+                'description' => "Materi tentang {$s['title']}",
+                'order'       => $i + 1,
+            ]));
+        }
+
+        // ── ENROLLMENT user ke roadmap1 ───────────────────────
+        $enrollment = UserRoadmap::create([
+            'user_id'    => $user->id,
+            'roadmap_id' => $roadmap1->id,
+            'progress'   => 75,
+            'status'     => 'active',
+            'started_at' => now()->subWeeks(3),
+        ]);
+
+        // 6 dari 8 stage selesai
+        foreach (array_slice($stageIds1, 0, 6) as $i => $stageId) {
+            UserStage::create([
+                'user_id'           => $user->id,
+                'stage_id'          => $stageId,
+                'roadmap_id'        => $roadmap1->id,
+                'is_completed'      => true,
+                'completed_at'      => now()->subDays(18 - ($i * 3)),
+                'time_spent_minutes'=> rand(30, 90),
+            ]);
+        }
+
+        // ── TARGETS ───────────────────────────────────────────
+        Target::create([
+            'user_id'      => $user->id,
+            'name'         => 'Selesaikan Jaringan Dasar TKJ',
+            'type'         => 'custom',
+            'target_value' => 8,
+            'current_value'=> 6,
+            'deadline'     => now()->addDays(15)->toDateString(),
+            'status'       => 'active',
+        ]);
+
+        Target::create([
+            'user_id'      => $user->id,
+            'name'         => 'Belajar 5 materi per minggu',
+            'type'         => 'weekly',
+            'target_value' => 5,
+            'current_value'=> 4,
+            'deadline'     => now()->endOfWeek()->toDateString(),
+            'status'       => 'active',
+        ]);
+
+        Target::create([
+            'user_id'      => $user->id,
+            'name'         => 'Raih 10 Badge',
+            'type'         => 'custom',
+            'target_value' => 10,
+            'current_value'=> 12,
+            'deadline'     => null,
+            'status'       => 'done',
+        ]);
+
+        // ── BADGES ────────────────────────────────────────────
+        $badges = [
+            ['name' => 'Pemula',          'icon' => '🌱', 'color' => '#22c55e', 'condition_type' => 'stages_done',   'condition_value' => 1],
+            ['name' => 'Rajin Belajar',   'icon' => '📚', 'color' => '#3b82f6', 'condition_type' => 'stages_done',   'condition_value' => 10],
+            ['name' => 'Streak 7 Hari',   'icon' => '🔥', 'color' => '#f97316', 'condition_type' => 'streak',        'condition_value' => 7],
+            ['name' => 'Road Master',     'icon' => '🏆', 'color' => '#f59e0b', 'condition_type' => 'roadmap_done',  'condition_value' => 1],
+            ['name' => 'Networker',       'icon' => '🌐', 'color' => '#372466', 'condition_type' => 'stages_done',   'condition_value' => 5],
+            ['name' => 'Konsisten',       'icon' => '⭐', 'color' => '#8b5cf6', 'condition_type' => 'streak',        'condition_value' => 30],
+        ];
+
+        foreach ($badges as $b) {
+            $badge = Badge::create(array_merge($b, ['description' => "Badge {$b['name']}"]));
+
+            // User dapat 4 badge pertama
+            if ($badge->id <= 4) {
+                $user->badges()->attach($badge->id, ['earned_at' => now()->subDays(rand(1, 20))]);
+            }
+        }
+
+        // ── LEARNING LOGS ─────────────────────────────────────
+        for ($i = 0; $i < 20; $i++) {
+            LearningLog::create([
+                'user_id'          => $user->id,
+                'roadmap_id'       => $roadmap1->id,
+                'stage_id'         => $stageIds1[array_rand($stageIds1)],
+                'duration_minutes' => rand(20, 90),
+                'log_date'         => now()->subDays(rand(0, 27))->toDateString(),
+                'activity'         => ['study', 'review', 'quiz'][rand(0, 2)],
+            ]);
+        }
+    }
+}
