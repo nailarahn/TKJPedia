@@ -32,7 +32,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/roadmap/{roadmapId}/stage/{stageId}', [DashboardController::class, 'stage'])->name('roadmap.stage');
     Route::post('/roadmap/{roadmapId}/stage/{stageId}/complete', [DashboardController::class, 'completeStage'])->name('roadmap.complete');
 
-    
+    // Quiz Routes 
+    Route::get('/roadmap/{roadmapId}/stage/{stageId}/quiz', [DashboardController::class, 'quiz'])
+    ->name('roadmap.quiz');
+    Route::post('/roadmap/{roadmapId}/stage/{stageId}/quiz/submit', [DashboardController::class, 'submitQuiz'])
+    ->name('roadmap.quiz.submit');
+    // End Quiz Routes 
+
     // Target Belajar 
     Route::get('/target',              [DashboardController::class, 'target'])->name('target');
     Route::get('/target/create',       [DashboardController::class, 'targetCreate'])->name('target.create');
