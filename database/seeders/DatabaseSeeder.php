@@ -394,5 +394,6 @@ class DatabaseSeeder extends Seeder
                 'activity'         => ['study', 'review'][rand(0, 1)],
             ]);
         }
+        $this->call(QuizSeeder::class);
     }
 }

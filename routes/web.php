@@ -6,6 +6,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\PengaturanController;
+use App\Http\Controllers\QuizController;
 
 // Landing Page
 Route::get('/', function () {
@@ -32,12 +33,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/roadmap/{roadmapId}/stage/{stageId}', [DashboardController::class, 'stage'])->name('roadmap.stage');
     Route::post('/roadmap/{roadmapId}/stage/{stageId}/complete', [DashboardController::class, 'completeStage'])->name('roadmap.complete');
 
-    // Quiz Routes 
+    // Quiz Routes
     Route::get('/roadmap/{roadmapId}/stage/{stageId}/quiz', [DashboardController::class, 'quiz'])
     ->name('roadmap.quiz');
     Route::post('/roadmap/{roadmapId}/stage/{stageId}/quiz/submit', [DashboardController::class, 'submitQuiz'])
     ->name('roadmap.quiz.submit');
-    // End Quiz Routes 
+    Route::get('/roadmap/{roadmapId}/stage/{stageId}/quiz/{attemptId}/result', [DashboardController::class, 'quizResult'])
+    ->name('roadmap.quiz.result');
 
     // Target Belajar 
     Route::get('/target',              [DashboardController::class, 'target'])->name('target');
