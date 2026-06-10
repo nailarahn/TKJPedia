@@ -56,8 +56,7 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 3px; }
-
-<<<<<<< HEAD
+    
     /* ===== SIDEBAR ===== */
     .sidebar {
         width: var(--sidebar-width);
