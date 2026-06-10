@@ -12,21 +12,17 @@ use App\Models\Badge;
 
 class QuizController extends Controller
 {
-    // ==========================================
-    // Tampilkan halaman kuis
-    // ==========================================
     public function show($stageId)
     {
         $stage = Stage::with('quiz.questions')->findOrFail($stageId);
 
-        // Kalau stage ini tidak punya quiz, redirect balik ke stage
         if (!$stage->quiz) {
             return redirect()->route('stages.show', $stageId)
                 ->with('info', 'Stage ini belum memiliki kuis.');
         }
 
-        $quiz       = $stage->quiz;
-        $user       = Auth::user();
+        $quiz        = $stage->quiz;
+        $user        = Auth::user();
         $lastAttempt = QuizAttempt::where('user_id', $user->id)
             ->where('quiz_id', $quiz->id)
             ->latest()
@@ -35,13 +31,10 @@ class QuizController extends Controller
         return view('quiz.show', compact('stage', 'quiz', 'lastAttempt'));
     }
 
-    // ==========================================
-    // Proses submit jawaban kuis
-    // ==========================================
     public function submit(Request $request, $stageId)
     {
         $request->validate([
-            'answers'  => 'required|array',
+            'answers'   => 'required|array',
             'answers.*' => 'required|in:a,b,c,d',
         ]);
 
@@ -53,20 +46,18 @@ class QuizController extends Controller
             return redirect()->route('stages.show', $stageId);
         }
 
-        // ---- Hitung skor ----
-        $questions     = $quiz->questions;
-        $userAnswers   = $request->input('answers'); // ['questionId' => 'a', ...]
-        $correctCount  = 0;
+        // Hitung skor
+        $questions      = $quiz->questions;
+        $userAnswers    = $request->input('answers');
+        $correctCount   = 0;
         $totalQuestions = $questions->count();
-        $answerDetails = [];
+        $answerDetails  = [];
 
         foreach ($questions as $question) {
             $userAnswer = $userAnswers[$question->id] ?? null;
             $isCorrect  = $userAnswer && $question->isCorrect($userAnswer);
 
-            if ($isCorrect) {
-                $correctCount++;
-            }
+            if ($isCorrect) $correctCount++;
 
             $answerDetails[$question->id] = [
                 'user_answer'    => $userAnswer,
@@ -79,7 +70,7 @@ class QuizController extends Controller
         $score    = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100) : 0;
         $isPassed = $score >= $quiz->passing_score;
 
-        // ---- Simpan attempt ----
+        // Simpan attempt
         $attempt = QuizAttempt::create([
             'user_id'         => $user->id,
             'quiz_id'         => $quiz->id,
@@ -92,36 +83,42 @@ class QuizController extends Controller
             'completed_at'    => now(),
         ]);
 
-        // ---- Kalau lulus: tandai stage selesai ----
-        if ($isPassed) {
-            $this->markStageCompleted($user, $stage);
-        }
-
-        // ---- Cek dan kasih badge ----
+        // Kalau lulus: cek apakah stage belum pernah selesai sebelumnya
+        $xpEarned = 0;
         $newBadge = null;
+
         if ($isPassed) {
+            $alreadyCompleted = UserStage::where('user_id', $user->id)
+                ->where('stage_id', $stage->id)
+                ->where('is_completed', true)
+                ->exists();
+
+            // Tandai stage selesai
+            $this->markStageCompleted($user, $stage);
+
+            // Tambah XP hanya kalau baru pertama kali lulus
+            if (!$alreadyCompleted) {
+                $xpEarned = $quiz->points_reward ?? 50;
+                $user->increment('total_xp', $xpEarned);
+            }
+
+            // Cek badge
             $newBadge = $this->checkAndAwardBadge($user);
         }
 
         return redirect()->route('quiz.result', [$stageId, $attempt->id])
-            ->with('newBadge', $newBadge);
+            ->with('newBadge', $newBadge)
+            ->with('xp_earned', $xpEarned);
     }
 
-    // ==========================================
-    // Tampilkan halaman hasil kuis
-    // ==========================================
     public function result($stageId, $attemptId)
     {
         $stage   = Stage::with('quiz', 'roadmap')->findOrFail($stageId);
         $attempt = QuizAttempt::with('quiz.questions')->findOrFail($attemptId);
         $quiz    = $stage->quiz;
 
-        // Pastikan attempt ini milik user yang login
-        if ($attempt->user_id !== Auth::id()) {
-            abort(403);
-        }
+        if ($attempt->user_id !== Auth::id()) abort(403);
 
-        // Ambil stage berikutnya di roadmap yang sama
         $nextStage = Stage::where('roadmap_id', $stage->roadmap_id)
             ->where('order', $stage->order + 1)
             ->first();
@@ -131,9 +128,6 @@ class QuizController extends Controller
         return view('quiz.result', compact('stage', 'quiz', 'attempt', 'nextStage', 'newBadge'));
     }
 
-    // ==========================================
-    // Private: tandai stage selesai
-    // ==========================================
     private function markStageCompleted($user, $stage)
     {
         $userStage = UserStage::firstOrCreate(
@@ -147,14 +141,10 @@ class QuizController extends Controller
                 'completed_at' => now(),
             ]);
 
-            // Update progress di UserRoadmap
             $this->updateRoadmapProgress($user, $stage->roadmap_id);
         }
     }
 
-    // ==========================================
-    // Private: update progress roadmap user
-    // ==========================================
     private function updateRoadmapProgress($user, $roadmapId)
     {
         $userRoadmap = $user->userRoadmaps()
@@ -177,18 +167,14 @@ class QuizController extends Controller
         ]);
     }
 
-    // ==========================================
-    // Private: cek dan beri badge
-    // ==========================================
     private function checkAndAwardBadge($user)
     {
-        $stagesDone  = UserStage::where('user_id', $user->id)
+        $stagesDone     = UserStage::where('user_id', $user->id)
             ->where('is_completed', true)
             ->count();
 
         $earnedBadgeIds = $user->badges()->pluck('badges.id')->toArray();
 
-        // Ambil semua badge bertipe stages_done yang belum diraih user
         $eligibleBadge = Badge::where('condition_type', 'stages_done')
             ->where('condition_value', '<=', $stagesDone)
             ->whereNotIn('id', $earnedBadgeIds)
