@@ -59,4 +59,9 @@ class Stage extends Model
     {
         return $this->userStages()->where('user_id', $userId)->where('is_completed', true)->exists();
     }
+
+    public function quiz()
+    {
+        return $this->hasOne(Quiz::class);
+    }
 }
