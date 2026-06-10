@@ -41,7 +41,7 @@ class BadgeService
                     'earned_at' => now(),
                 ]);
 
-                $user->increment('xp', $badge->xp_reward);
+                $user->increment('total_xp', $badge->xp_reward);
             }
         }
     }
