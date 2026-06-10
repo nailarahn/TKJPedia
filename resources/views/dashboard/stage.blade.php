@@ -191,6 +191,35 @@
 }
 .next-group-link:hover { background: var(--gray-100); color: var(--primary); }
 
+.quiz-cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    background: #E6F1FB;
+    border: 1.5px solid #B5D4F4;
+    border-radius: 16px;
+    margin-top: 1.5rem;
+}
+.quiz-cta-info { display: flex; align-items: center; gap: .75rem; font-size: 1.25rem; color: #185FA5; }
+.quiz-cta-title { font-size: .95rem; font-weight: 600; color: #0C447C; }
+.quiz-cta-sub   { font-size: .8rem; color: #185FA5; }
+.btn-start-quiz {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .65rem 1.5rem;
+    background: #185FA5;
+    color: #fff;
+    border-radius: 10px;
+    font-size: .9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background .2s;
+}
+.btn-start-quiz:hover { background: #0C447C; }
 @media (max-width: 900px) {
     .stage-grid { grid-template-columns: 1fr; }
     .materi-sidebar { position: static; max-height: 400px; }
@@ -308,8 +337,23 @@
                 @endif
             </div>
         </div>
-    </div>
 
+        {{-- Tombol mulai kuis --}}
+        @if($stage->quiz)
+        <div class="quiz-cta">
+            <div class="quiz-cta-info">
+                <i class="ti ti-help-circle"></i>
+                <div>
+                    <div class="quiz-cta-title">Uji Pemahamanmu!</div>
+                    <div class="quiz-cta-sub">{{ $stage->quiz->questions->count() }} soal · Nilai lulus {{ $stage->quiz->passing_score }}%</div>
+                </div>
+            </div>
+            <a href="{{ route('roadmap.quiz', [$roadmapId, $stage->id]) }}" class="btn-start-quiz">
+                <i class="ti ti-arrow-right"></i> Mulai Kuis
+            </a>
+        </div>
+        @endif
+    </div>
 
     <div>
         <div class="materi-sidebar">
