@@ -139,8 +139,8 @@
         align-items: center;
         gap: 1rem;
         padding: 1rem 1.25rem;
-        background: #EEEDFE;
-        border: 1.5px solid #AFA9EC;
+        background: var(--gray-100);          /* FIX: was #EEEDFE ungu */
+        border: 1.5px solid var(--gray-200);  /* FIX: was #AFA9EC ungu */
         border-radius: 14px;
         margin-bottom: 1.5rem;
         animation: slideDown .4s ease;
@@ -150,23 +150,23 @@
         to   { opacity: 1; transform: translateY(0); }
     }
     .badge-toast-icon   { font-size: 2rem; }
-    .badge-toast-title  { font-size: .75rem; font-weight: 600; color: #534AB7; }
-    .badge-toast-name   { font-size: 1rem; font-weight: 700; color: #3C3489; }
+    .badge-toast-title  { font-size: .75rem; font-weight: 600; color: var(--gray-500); }  /* FIX: was #534AB7 ungu */
+    .badge-toast-name   { font-size: 1rem; font-weight: 700; color: var(--primary); }     /* FIX: was #3C3489 ungu */
     .badge-toast-close  {
         margin-left: auto;
         background: none;
         border: none;
-        color: #534AB7;
+        color: var(--gray-500);               /* FIX: was #534AB7 ungu */
         cursor: pointer;
         font-size: 1rem;
     }
 
-    /* Kartu skor */
+    /* Kartu skor — tetap hijau/merah karena semantik pass/fail */
     .result-card {
         text-align: center;
         padding: 2.5rem 2rem;
         border-radius: 20px;
-        border: 1.5px solid var(--color-border-tertiary);
+        border: 1.5px solid var(--gray-200);
         margin-bottom: 2rem;
     }
     .result-pass { background: #E1F5EE; border-color: #9FE1CB; }
@@ -217,14 +217,14 @@
     .review-heading {
         font-size: 1.1rem;
         font-weight: 600;
-        color: var(--color-text-primary);
+        color: var(--gray-800);
         margin: 0 0 1rem;
     }
 
     /* Review card */
     .review-card {
-        background: var(--color-background-primary);
-        border: 1.5px solid var(--color-border-tertiary);
+        background: var(--white);
+        border: 1.5px solid var(--gray-200);
         border-radius: 16px;
         padding: 1.25rem 1.5rem;
         margin-bottom: 1rem;
@@ -238,7 +238,7 @@
         justify-content: space-between;
         margin-bottom: .75rem;
     }
-    .review-number { font-size: .8rem; font-weight: 600; color: var(--color-text-secondary); }
+    .review-number { font-size: .8rem; font-weight: 600; color: var(--gray-400); }
     .review-status-chip {
         display: inline-flex;
         align-items: center;
@@ -253,7 +253,7 @@
 
     .review-question {
         font-size: .95rem;
-        color: var(--color-text-primary);
+        color: var(--gray-800);
         line-height: 1.6;
         margin: 0 0 1rem;
     }
@@ -265,9 +265,9 @@
         align-items: center;
         gap: .75rem;
         padding: .6rem .9rem;
-        border: 1.5px solid var(--color-border-tertiary);
+        border: 1.5px solid var(--gray-200);
         border-radius: 10px;
-        background: var(--color-background-secondary);
+        background: var(--gray-50);
     }
     .option-correct    { border-color: #1D9E75; background: #E1F5EE; }
     .option-wrong-pick { border-color: #D85A30; background: #FAECE7; }
@@ -276,15 +276,15 @@
         flex-shrink: 0;
         width: 26px; height: 26px;
         border-radius: 50%;
-        background: var(--color-background-primary);
-        border: 1.5px solid var(--color-border-secondary);
+        background: var(--white);
+        border: 1.5px solid var(--gray-200);
         display: flex; align-items: center; justify-content: center;
         font-size: .75rem; font-weight: 700;
-        color: var(--color-text-secondary);
+        color: var(--gray-500);
     }
     .option-correct .review-option-key    { background: #1D9E75; color: #fff; border-color: #1D9E75; }
     .option-wrong-pick .review-option-key { background: #D85A30; color: #fff; border-color: #D85A30; }
-    .review-option-text { font-size: .875rem; color: var(--color-text-primary); flex: 1; }
+    .review-option-text { font-size: .875rem; color: var(--gray-800); flex: 1; }
     .review-option-icon { margin-left: auto; font-size: 1rem; }
     .icon-correct { color: #1D9E75; }
     .icon-wrong   { color: #D85A30; }
@@ -319,14 +319,41 @@
         font-size: .9rem;
         font-weight: 600;
         text-decoration: none;
-        transition: opacity .2s, transform .1s;
+        transition: all .2s;
+        position: relative;
+        overflow: hidden;
     }
     .btn-retry:active, .btn-next:active, .btn-back-roadmap:active { transform: scale(.98); }
-    .btn-retry       { background: #FAECE7; color: #993C1D; border: 1.5px solid #F5C4B3; }
-    .btn-next        { background: #185FA5; color: #fff; border: none; }
-    .btn-back-roadmap{ background: var(--color-background-secondary); color: var(--color-text-secondary); border: 1.5px solid var(--color-border-tertiary); }
-    .btn-retry:hover        { opacity: .85; }
-    .btn-next:hover         { background: #0C447C; }
-    .btn-back-roadmap:hover { color: var(--color-text-primary); }
+
+    /* retry tetap merah — semantik "coba lagi/gagal" */
+    .btn-retry { background: #FAECE7; color: #993C1D; border: 1.5px solid #F5C4B3; }
+    .btn-retry:hover { opacity: .85; }
+
+    /* FIX: btn-next → oranye, was #185FA5 biru */
+    .btn-next {
+        background: var(--primary);
+        color: #fff;
+        border: none;
+    }
+    .btn-next::before {
+        content: '';
+        position: absolute; top: 0; left: -100%;
+        width: 100%; height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+        transition: left .5s;
+    }
+    .btn-next:hover::before { left: 100%; }
+    .btn-next:hover {
+        background: var(--primary-light);  /* FIX: was #0C447C biru */
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px var(--accent-glow);
+    }
+
+    .btn-back-roadmap {
+        background: var(--gray-50);
+        color: var(--gray-500);
+        border: 1.5px solid var(--gray-200);
+    }
+    .btn-back-roadmap:hover { color: var(--gray-800); background: var(--gray-100); }
 </style>
 @endpush

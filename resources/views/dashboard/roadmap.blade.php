@@ -7,12 +7,12 @@
 .page-header { 
     margin-bottom: 2rem; 
 }
-.page-title  { 
+.page-title { 
     font-size: 1.6rem; 
     font-weight: 800; 
     color: var(--gray-800); 
 }
-.page-sub    { 
+.page-sub { 
     font-size: 0.9rem; 
     color: var(--gray-400); 
     margin-top: 0.25rem; 
@@ -57,9 +57,9 @@
 .stage-item:not(:last-child)::after {
     content: '';
     position: absolute;
-    left: 23px;          
-    top: 46px;           
-    height: calc(100% + 0px);  
+    left: 23px;
+    top: 46px;
+    height: calc(100% + 0px);
     width: 2px;
     background: var(--gray-200);
     z-index: 0;
@@ -106,7 +106,7 @@
     background: white;
     border-color: var(--primary);
     color: var(--primary);
-    box-shadow: 0 0 0 4px rgba(55,36,102,0.1);
+    box-shadow: 0 0 0 4px var(--accent-glow);
 }
 
 .stage-info { 
@@ -139,7 +139,7 @@
     color: var(--gray-400); 
     font-size: 1.1rem; 
 }
-.stage-action.lock-icon  { 
+.stage-action.lock-icon { 
     color: var(--gray-300); 
 }
 
@@ -204,10 +204,10 @@
     font-weight: 500; 
     min-width: 90px; 
 }
-.roadmap-progress-bar .bar   { 
+.roadmap-progress-bar .bar { 
     flex: 1; 
 }
-.roadmap-progress-bar .pct   {
+.roadmap-progress-bar .pct {
     font-size: 0.9rem; 
     font-weight: 700; 
     color: var(--primary); 
@@ -218,20 +218,33 @@
 .enroll-btn {
     display: inline-flex;
     align-items: center;
-    gap: .5rem;
+    gap: 0.5rem;
     background: var(--primary);
     color: white;
-    padding: .65rem 1.5rem;
+    padding: 0.65rem 1.5rem;
     border-radius: 10px;
     font-weight: 600;
-    font-size: .875rem;
+    font-size: 0.875rem;
     border: none;
     cursor: pointer;
     font-family: var(--font);
-    transition: all .2s;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
 }
+.enroll-btn::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+}
+.enroll-btn:hover::before { left: 100%; }
 .enroll-btn:hover {
-    background: #4e35a0;
+    background: var(--primary-light);
+    box-shadow: 0 4px 15px var(--accent-glow);
+    transform: translateY(-1px);
 }
 
 @media (max-width: 640px) {
