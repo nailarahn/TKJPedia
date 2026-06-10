@@ -327,13 +327,9 @@
                     Materi Sudah Diselesaikan ✓
                 </div>
                 @else
-                <form method="POST" action="{{ route('roadmap.complete', ['roadmapId' => $roadmap->id, 'stageId' => $stage->id]) }}">
-                    @csrf
-                    <input type="hidden" name="time_spent_minutes" value="{{ $stage->estimated_minutes }}">
-                    <button type="submit" class="complete-btn">
-                        Tandai Selesai & Lanjut →
-                    </button>
-                </form>
+                <button type="button" class="complete-btn" id="completeBtn" onclick="handleCompleteVideo()">
+                    🎬 Tandai Selesai & Lanjut →
+                </button>
                 @endif
             </div>
         </div>
@@ -452,22 +448,82 @@
 
 @push('scripts')
 <script>
+const COMPLETE_URL = '{{ route("roadmap.complete", ["roadmapId" => $roadmap->id, "stageId" => $stage->id]) }}';
+const CSRF_TOKEN   = '{{ csrf_token() }}';
+const STAGE_TITLE  = '{{ addslashes($stage->title) }}';
+@if($nextStage ?? false)
+const NEXT_URL = '{{ route("roadmap.stage", ["roadmapId" => $roadmap->id, "stageId" => $nextStage->id]) }}';
+@else
+const NEXT_URL = '{{ route("roadmap") }}';
+@endif
+
+async function handleCompleteVideo() {
+    const btn = document.getElementById('completeBtn');
+    btn.disabled = true;
+    btn.textContent = '⏳ Menyimpan...';
+
+    try {
+        const res = await fetch(COMPLETE_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': CSRF_TOKEN,
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify({ duration_minutes: {{ $stage->estimated_minutes }} })
+        });
+
+        const data = await res.json();
+        const xpEarned = data.xp_earned ?? 50;
+
+        // Update XP di topbar langsung
+        const xpEl = document.querySelector('.topbar-right div span:last-child');
+        if (xpEl && data.xp !== undefined) {
+            xpEl.textContent = data.xp + ' XP';
+        }
+
+        // Ubah tombol jadi "selesai"
+        btn.className = 'complete-btn done';
+        btn.disabled  = true;
+        btn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Materi Sudah Diselesaikan ✓';
+
+        // Tampilkan popup reward
+        showTKJReward({
+            type:    data.new_badge ? 'Badge Baru Diraih! 🏆' : 'Video Selesai! 🎬',
+            title:   data.new_badge ? data.new_badge : 'Materi Ditandai Selesai!',
+            desc:    STAGE_TITLE + ' berhasil kamu selesaikan. Terus semangat!',
+            xp:      xpEarned,
+            emoji:   data.new_badge ? '🏅' : '🎬',
+            badge:   data.new_badge ?? null,
+            bgColor: data.new_badge ? '#ffe7ef' : '#efe9ff',
+        });
+
+        // Tombol popup lanjut ke materi berikutnya
+        const popupBtn = document.querySelector('#tkj-reward-popup button');
+        popupBtn.textContent = '{{ $nextStage ?? false ? "Lanjut ke Materi Berikutnya 🚀" : "Kembali ke Roadmap 🗺️" }}';
+        popupBtn.onclick = function() {
+            closeTKJReward();
+            window.location.href = NEXT_URL;
+        };
+
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = '🎬 Tandai Selesai & Lanjut →';
+        alert('Gagal menyimpan, coba lagi.');
+    }
+}
+
 function loadYoutube(videoId) {
     const thumb = document.getElementById('ytThumb');
     if (!thumb) return;
-
-
     thumb.style.opacity = '0';
     thumb.style.pointerEvents = 'none';
-
     const iframe = document.createElement('iframe');
     iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&modestbranding=1`;
     iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture';
     iframe.allowFullscreen = true;
     iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;z-index:3;';
-
     document.getElementById('ytWrapper').appendChild(iframe);
-
     setTimeout(() => thumb.remove(), 400);
 }
 

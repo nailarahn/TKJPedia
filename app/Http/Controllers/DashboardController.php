@@ -207,7 +207,13 @@ class DashboardController extends Controller
             ? min(100, (int) round(($doneCount / $roadmap->total_stages) * 100))
             : 0;
 
-        $allStages         = $roadmap->stages;
+        $allStages = $roadmap->stages;
+
+        $stageIds    = $allStages->pluck('id')->toArray();
+        $currentIdx  = array_search((int) $stageId, $stageIds);
+        $nextStageId = $stageIds[$currentIdx + 1] ?? null;
+        $nextStage   = $nextStageId ? $allStages->firstWhere('id', $nextStageId) : null;
+
         $currentGroupIndex = 0;
         $groupedStages     = $allStages->groupBy(function ($s) {
             return $s->group_label ?: $s->title;
@@ -229,7 +235,8 @@ class DashboardController extends Controller
             'isCompleted',
             'doneCount',
             'progressPercent',
-            'currentGroupIndex'
+            'currentGroupIndex',
+            'nextStage'
         ));
     }
 
@@ -272,16 +279,28 @@ class DashboardController extends Controller
             ->where('roadmap_id', $roadmapId)
             ->firstOrFail();
 
-        // Tandai stage selesai
+        // Cek apakah baru pertama kali selesai (SEBELUM update)
+        $existing = UserStage::where('user_id', $user->id)
+            ->where('stage_id', $stageId)
+            ->where('is_completed', true)
+            ->exists();
+
         UserStage::updateOrCreate(
             ['user_id' => $user->id, 'stage_id' => $stageId],
             [
                 'roadmap_id'         => $roadmapId,
                 'is_completed'       => true,
                 'completed_at'       => now(),
-                'time_spent_minutes' => $request->input('time_spent_minutes', 30),
+                'time_spent_minutes' => $request->input('time_spent_minutes', $request->input('duration_minutes', 30)),
             ]
         );
+
+        // Tambah XP hanya kalau baru pertama kali selesai
+        $xpEarned = 0;
+        if (!$existing) {
+            $xpEarned = 50;
+            $user->increment('total_xp', $xpEarned);
+        }
 
         // Update progress roadmap
         $totalStages = Roadmap::find($roadmapId)?->total_stages ?? 1;
@@ -306,15 +325,15 @@ class DashboardController extends Controller
             'user_id'          => $user->id,
             'stage_id'         => $stageId,
             'roadmap_id'       => $roadmapId,
-            'duration_minutes' => $request->input('time_spent_minutes', 30),
+            'duration_minutes' => $request->input('time_spent_minutes', $request->input('duration_minutes', 30)),
             'log_date'         => now()->toDateString(),
             'activity'         => 'study',
         ]);
 
-        // ── BADGE & STREAK ─────────────────────────────────────────
+        // Badge & Streak
         $badgeService = new BadgeService();
         $badgeService->updateStreak($user);
-        $badgeService->checkAndAward($user);
+        $newBadge = $badgeService->checkAndAward($user);
 
         // Auto update target
         $activeTarget = $user->targets()
@@ -327,26 +346,41 @@ class DashboardController extends Controller
             $activeTarget->checkAndUpdateStatus();
         }
 
-        // Cari next stage
+        // Cari next stage URL
         $roadmap  = Roadmap::with(['stages' => fn($q) => $q->orderBy('order')])->find($roadmapId);
         $stageIds = $roadmap->stages->pluck('id')->toArray();
+        $currentIdx  = array_search((int) $stageId, $stageIds);
+        $nextStageId = $stageIds[$currentIdx + 1] ?? null;
 
-        $currentIdx = array_search((int) $stageId, $stageIds);
-        $nextStage  = $stageIds[$currentIdx + 1] ?? null;
+        $nextUrl = $nextStageId
+            ? route('roadmap.stage', ['roadmapId' => $roadmapId, 'stageId' => $nextStageId])
+            : route('roadmap');
 
-        if ($nextStage) {
+        // Kalau request AJAX → return JSON
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'message'   => 'Stage completed!',
+                'xp'        => $user->fresh()->total_xp,
+                'xp_earned' => $xpEarned,
+                'new_badge' => $newBadge ? $newBadge->name : null,
+                'next_url'  => $nextUrl,
+            ]);
+        }
+
+        // Kalau request biasa → redirect
+        if ($nextStageId) {
             return redirect()->route('roadmap.stage', [
                 'roadmapId' => $roadmapId,
-                'stageId'   => $nextStage,
+                'stageId'   => $nextStageId,
             ])->with('success', 'Tahap selesai! Lanjut ke materi berikutnya 🎉');
         }
 
-        return redirect()->route('roadmap')->with('success', 'Selamat! Kamu telah menyelesaikan semua materi di roadmap ini 🏆');
+        return redirect()->route('roadmap')->with('success', 'Selamat! Kamu telah menyelesaikan semua materi 🏆');
     }
 
     // ==========================================
-// Tampilkan halaman kuis
-// ==========================================
+    // Tampilkan halaman kuis
+    // ==========================================
     public function quiz($roadmapId, $stageId)
     {
         $stage = Stage::with('quiz.questions', 'roadmap')->findOrFail($stageId);
@@ -384,7 +418,7 @@ class DashboardController extends Controller
             return redirect()->route('roadmap.stage', [$roadmapId, $stageId]);
         }
 
-        // ---- Hitung skor ----
+        // Hitung skor
         $questions      = $quiz->questions;
         $userAnswers    = $request->input('answers');
         $correctCount   = 0;
@@ -395,9 +429,7 @@ class DashboardController extends Controller
             $userAnswer = $userAnswers[$question->id] ?? null;
             $isCorrect  = $userAnswer && $question->isCorrect($userAnswer);
 
-            if ($isCorrect) {
-                $correctCount++;
-            }
+            if ($isCorrect) $correctCount++;
 
             $answerDetails[$question->id] = [
                 'user_answer'    => $userAnswer,
@@ -410,7 +442,7 @@ class DashboardController extends Controller
         $score    = $totalQuestions > 0 ? round(($correctCount / $totalQuestions) * 100) : 0;
         $isPassed = $score >= $quiz->passing_score;
 
-        // ---- Simpan attempt ----
+        // Simpan attempt
         $attempt = QuizAttempt::create([
             'user_id'         => $user->id,
             'quiz_id'         => $quiz->id,
@@ -423,20 +455,35 @@ class DashboardController extends Controller
             'completed_at'    => now(),
         ]);
 
-        // ---- Kalau lulus: tandai stage selesai + update progress ----
-        if ($isPassed) {
-            $this->markStageCompleted($user, $stage);
-        }
-
-        // ---- Cek dan kasih badge ----
+        // Kalau lulus: cek dulu apakah sudah pernah selesai (SEBELUM markStageCompleted)
+        $xpEarned = 0;
         $newBadge = null;
+
         if ($isPassed) {
+            // Cek apakah user sudah pernah LULUS KUIS INI sebelumnya (bukan cek stage)
+            $alreadyPassedQuiz = QuizAttempt::where('user_id', $user->id)
+                ->where('quiz_id', $quiz->id)
+                ->where('is_passed', true)
+                ->where('id', '!=', $attempt->id) // exclude attempt yang baru saja dibuat
+                ->exists();
+
+            // Tandai stage selesai
+            $this->markStageCompleted($user, $stage);
+
+            // Beri XP hanya kalau belum pernah lulus kuis ini sebelumnya
+            if (!$alreadyPassedQuiz) {
+                $xpEarned = $quiz->points_reward ?? 75;
+                $user->increment('total_xp', $xpEarned);
+            }
+
+            // Cek badge
             $newBadge = $this->checkAndAwardBadge($user);
         }
 
         return redirect()
             ->route('roadmap.quiz.result', [$roadmapId, $stageId, $attempt->id])
-            ->with('newBadge', $newBadge);
+            ->with('newBadge', $newBadge ? $newBadge->name : null)
+            ->with('xp_earned', $xpEarned);
     }
 
     // ==========================================
@@ -448,17 +495,16 @@ class DashboardController extends Controller
         $attempt = QuizAttempt::with('quiz.questions')->findOrFail($attemptId);
         $quiz    = $stage->quiz;
 
-        if ($attempt->user_id !== Auth::id()) {
-            abort(403);
-        }
+        if ($attempt->user_id !== Auth::id()) abort(403);
 
         $nextStage = Stage::where('roadmap_id', $stage->roadmap_id)
             ->where('order', $stage->order + 1)
             ->first();
 
         $newBadge = session('newBadge');
+        $xpEarned = session('xp_earned', 0);
 
-        return view('quiz.result', compact('stage', 'quiz', 'attempt', 'nextStage', 'newBadge', 'roadmapId'));
+        return view('quiz.result', compact('stage', 'quiz', 'attempt', 'nextStage', 'newBadge', 'xpEarned', 'roadmapId'));
     }
 
     // ==========================================
@@ -530,6 +576,7 @@ class DashboardController extends Controller
 
         return null;
     }
+
     // TARGET
     public function target()
     {
