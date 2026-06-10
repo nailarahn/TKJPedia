@@ -63,5 +63,6 @@ class Stage extends Model
     public function quiz()
     {
         return $this->hasOne(Quiz::class);
+
     }
 }
