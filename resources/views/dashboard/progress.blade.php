@@ -61,6 +61,7 @@
 
 .achievement-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1rem; margin-top:1.4rem; }
 
+/* ── Card tetap ungu (sesuai permintaan) ── */
 .achievement-card{
     position:relative; overflow:hidden; border-radius:24px;
     padding:1.5rem 1.2rem 1.2rem; text-align:center;
@@ -86,6 +87,7 @@
 .badge-ring{ position:absolute; inset:-4px; border-radius:50%; border:2.5px solid transparent; animation:spin-ring 4s linear infinite; }
 @keyframes spin-ring{ to{ transform:rotate(360deg); } }
 
+/* ── Badge wrap backgrounds tetap ungu/pink/bronze (dekoratif) ── */
 .purple-wrap{ background:#efe9ff; }
 .purple-wrap .badge-ring{ border-top-color:#6C4CF1; border-right-color:#A586FF; }
 .pink-wrap{ background:#ffe7ef; }
@@ -99,14 +101,27 @@
 .achievement-name{ font-size:1rem; font-weight:800; color:var(--gray-800); margin-bottom:.3rem; position:relative; z-index:2; }
 .achievement-desc{ font-size:.76rem; color:var(--gray-400); line-height:1.5; margin-bottom:.9rem; position:relative; z-index:2; }
 .achv-footer{ display:flex; align-items:center; justify-content:space-between; position:relative; z-index:2; }
-.achv-xp{ font-size:.72rem; font-weight:700; background:#efe9ff; color:#6C4CF1; padding:.25rem .65rem; border-radius:20px; }
+
+/* FIX: XP pill → oranye */
+.achv-xp{
+    font-size:.72rem; font-weight:700;
+    background:var(--gray-100);       /* was #efe9ff ungu */
+    color:var(--primary);             /* was #6C4CF1 ungu */
+    padding:.25rem .65rem; border-radius:20px;
+}
 .achv-date{ font-size:.72rem; font-weight:600; color:var(--gray-400); }
 
 .locked-card{ border:1.5px dashed var(--gray-200) !important; background:#fafafa !important; cursor:default !important; }
 .locked-card:hover{ transform:none !important; box-shadow:none !important; border-color:var(--gray-200) !important; }
 .lock-overlay{ position:absolute; top:.8rem; right:.8rem; font-size:1rem; opacity:.45; }
 .locked-bar{ height:5px; background:#eee; border-radius:10px; overflow:hidden; margin:.7rem 0 .3rem; }
-.locked-bar-fill{ height:100%; background:linear-gradient(90deg,#b09fff,#6C4CF1); border-radius:10px; }
+
+/* FIX: locked progress bar → oranye */
+.locked-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--accent-light), var(--primary)); /* was #b09fff,#6C4CF1 ungu */
+    border-radius:10px;
+}
 .locked-progress-text{ font-size:.7rem; color:var(--gray-400); font-weight:600; }
 
 /* ───────────────── BIG MODAL ───────────────── */
@@ -228,7 +243,10 @@
 .badge-gal-card.locked-gal{ opacity:.4; filter:grayscale(1); }
 .badge-gal-icon{ font-size:2.2rem; margin-bottom:.5rem; }
 .badge-gal-name{ font-size:.78rem; font-weight:800; color:var(--gray-800); }
-.badge-gal-xp  { font-size:.68rem; color:#6C4CF1; font-weight:700; margin-top:.2rem; }
+
+/* FIX: XP di badge gallery → oranye */
+.badge-gal-xp{ font-size:.68rem; color:var(--primary); font-weight:700; margin-top:.2rem; } /* was #6C4CF1 ungu */
+
 .badge-gal-status{ display:inline-block; font-size:.62rem; font-weight:700; padding:.18rem .55rem; border-radius:20px; margin-top:.4rem; }
 .status-done  { background:#e7fff1; color:#18b56a; }
 .status-locked{ background:#f1f1f1; color:#9b9b9b; }
@@ -258,12 +276,33 @@
 .modal-desc{ font-size:.9rem; color:var(--gray-400); line-height:1.7; margin-bottom:1.3rem; }
 .modal-reward{ background:linear-gradient(135deg,#f5f0ff,#ede4ff); border:1px solid #ddd0ff; border-radius:20px; padding:1.1rem 1.2rem; margin-bottom:1.4rem; text-align:left; }
 .reward-label{ font-size:.72rem; color:var(--gray-400); margin-bottom:.3rem; font-weight:600; }
-.reward-value{ font-size:1.1rem; font-weight:800; color:#6C4CF1; margin-bottom:.8rem; }
+
+/* FIX: reward value (XP) → oranye */
+.reward-value{ font-size:1.1rem; font-weight:800; color:var(--primary); margin-bottom:.8rem; } /* was #6C4CF1 ungu */
+
 .xp-bar-track{ height:8px; background:#e0d5ff; border-radius:10px; overflow:hidden; margin-bottom:.4rem; }
-.xp-bar-fill{ height:100%; background:linear-gradient(90deg,#6C4CF1,#A586FF); border-radius:10px; width:0%; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+
+/* FIX: XP bar fill → oranye */
+.xp-bar-fill{
+    height:100%;
+    background:linear-gradient(90deg, var(--primary), var(--accent-light)); /* was #6C4CF1,#A586FF ungu */
+    border-radius:10px; width:0%;
+    transition:width 1.2s cubic-bezier(.4,0,.2,1);
+}
 .xp-bar-labels{ display:flex; justify-content:space-between; font-size:.68rem; color:var(--gray-400); font-weight:600; }
-.modal-close{ width:100%; border:none; background:linear-gradient(135deg,#6C4CF1,#A586FF); color:white; font-family:var(--font); font-size:.92rem; font-weight:700; padding:1rem; border-radius:16px; cursor:pointer; transition:.25s; box-shadow:0 8px 24px rgba(108,76,241,.35); }
-.modal-close:hover{ transform:translateY(-2px); box-shadow:0 14px 36px rgba(108,76,241,.45); }
+
+/* FIX: tombol close modal → oranye */
+.modal-close{
+    width:100%; border:none;
+    background:linear-gradient(135deg, var(--primary), var(--accent)); /* was #6C4CF1,#A586FF ungu */
+    color:white; font-family:var(--font); font-size:.92rem; font-weight:700;
+    padding:1rem; border-radius:16px; cursor:pointer; transition:.25s;
+    box-shadow:0 8px 24px var(--accent-glow); /* was rgba(108,76,241,.35) ungu */
+}
+.modal-close:hover{
+    transform:translateY(-2px);
+    box-shadow:0 14px 36px rgba(255,77,0,0.45); /* was rgba(108,76,241,.45) ungu */
+}
 
 /* ───────────────── RESPONSIVE ───────────────── */
 @media(max-width:1024px){
@@ -624,7 +663,7 @@ function handleBigModalBg(e) { if (e.target === document.getElementById('bigModa
 
 /* ══ CONFETTI ══ */
 let confettiAnim;
-const COLORS = ['#6C4CF1','#A586FF','#ff8fab','#FFA69E','#FFD166','#06D6A0'];
+const COLORS = ['#FF4D00','#FF6A00','#FF8100','#FFB366','#FFD166','#FFECCC'];
 function launchConfetti() {
     const canvas = document.getElementById('confettiCanvas');
     const box    = document.getElementById('modalBox');

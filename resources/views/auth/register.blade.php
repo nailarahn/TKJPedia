@@ -233,8 +233,8 @@ body { background: var(--white); min-height: 100vh; }
     <!-- LEFT PANEL -->
     <div class="register-left">
         <div class="left-header">
-            <div class="left-icon">
-                <img src="img/Icon1.png" alt="Logo Mappy ">
+            <div class="left-logo">
+                <img src="img/Icon1.png" alt="Logo TKJPedia" style="width:48px;height:48px;object-fit:contain;">
             </div>
             <span class="left-brand"> TKJPedia</span>
         </div>
