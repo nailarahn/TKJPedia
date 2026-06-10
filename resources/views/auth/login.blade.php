@@ -1,23 +1,27 @@
 @extends('layouts.app')
 
-@section('title', 'Masuk - Mappy Path')
+@section('title', 'Masuk - TKJPedia')
 
 @push('head')
 <style>
 :root {
-    --primary: #372466;
-    --primary-light: #4e35a0;
-    --accent: #7c5cbf;
-    --accent-light: #a78bd4;
+    --primary: #FF4D00;
+    --primary-light: #FF6A00;
+    --accent: #FF8100;
+    --accent-light: #FFB366;
+    --accent-glow: rgba(255,77,0,0.25);
     --white: #ffffff;
-    --gray-100: #f4f1ff;
-    --gray-200: #e4e0f5;
-    --gray-300: #c8bfe8;
-    --gray-400: #9589b8;
-    --gray-500: #6d5f9a;
-    --gray-700: #332a5c;
-    --gray-800: #1e1640;
+    --gray-50: #fffaf5;
+    --gray-100: #fff3e6;
+    --gray-200: #ffe0bf;
+    --gray-300: #f5c89a;
+    --gray-400: #c28d6d;
+    --gray-500: #9a6a4a;
+    --gray-700: #5a3722;
+    --gray-800: #3b2415;
     --danger: #ef4444;
+    --radius: 18px;
+    --radius-sm: 12px;
     --font: 'Poppins', sans-serif;
 }
 
@@ -31,7 +35,7 @@ body { background: var(--white); min-height: 100vh; }
 
 /* LEFT PANEL */
 .login-left {
-    background: linear-gradient(135deg, #1e1640 0%, var(--primary) 50%, var(--primary-light) 100%);
+    background: linear-gradient(135deg, #FF8100 0%, #FF6A00 50%, #FF4D00 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -77,7 +81,7 @@ body { background: var(--white); min-height: 100vh; }
     line-height: 1.6; margin-bottom: 1.5rem;
 }
 
-/* Stat mini cards for login */
+/* Stat mini cards */
 .login-stats {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -85,11 +89,16 @@ body { background: var(--white); min-height: 100vh; }
     margin-top: 0.5rem;
 }
 .login-stat-card {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.18);
     border-radius: 14px;
     padding: 1rem;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: background 0.2s;
+}
+.login-stat-card:hover {
+    background: rgba(255,255,255,0.18);
 }
 .login-stat-number {
     font-size: 1.6rem;
@@ -112,15 +121,20 @@ body { background: var(--white); min-height: 100vh; }
     justify-content: center;
     align-items: center;
     padding: 3rem 4rem;
-    background: var(--white);
+    background: var(--gray-50);
     overflow-y: auto;
 }
 .login-form-box { width: 100%; max-width: 420px; }
 
 .form-title {
-    font-size: 2.2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.4rem;
+    font-size: 2.2rem; font-weight: 800;
+    color: var(--primary); margin-bottom: 0.4rem;
 }
-.form-subtitle { font-size: 0.95rem; color: var(--gray-400); margin-bottom: 2.5rem; }
+.form-subtitle {
+    font-size: 0.95rem;
+    color: var(--gray-400);
+    margin-bottom: 2.5rem;
+}
 
 .form-group { margin-bottom: 1.4rem; }
 .form-label {
@@ -129,12 +143,15 @@ body { background: var(--white); min-height: 100vh; }
 }
 .form-input {
     width: 100%; padding: 0.8rem 1rem;
-    border: 1.5px solid var(--gray-200); border-radius: 10px;
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
     font-family: var(--font); font-size: 0.9rem; color: var(--gray-800);
     background: var(--white); transition: all 0.2s; outline: none;
 }
 .form-input::placeholder { color: var(--gray-300); }
-.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(55,36,102,0.08); }
+.form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+}
 .form-input.error { border-color: var(--danger); }
 
 .password-field { position: relative; }
@@ -151,19 +168,32 @@ body { background: var(--white); min-height: 100vh; }
     display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.75rem;
 }
 .remember-row input[type="checkbox"] {
-    width: 16px; height: 16px; accent-color: var(--primary); cursor: pointer;
+    width: 16px; height: 16px;
+    accent-color: var(--primary); cursor: pointer;
 }
 .remember-row label { font-size: 0.85rem; color: var(--gray-500); cursor: pointer; }
 
 .btn-login {
-    width: 100%; padding: 0.9rem; background: var(--primary);
-    color: white; border: none; border-radius: 10px;
+    width: 100%; padding: 0.9rem;
+    background: var(--primary);
+    color: white; border: none; border-radius: var(--radius-sm);
     font-family: var(--font); font-size: 1rem; font-weight: 700;
     cursor: pointer; transition: all 0.25s; letter-spacing: 0.01em;
+    position: relative; overflow: hidden;
 }
+.btn-login::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+}
+.btn-login:hover::before { left: 100%; }
 .btn-login:hover {
-    background: var(--primary-light); transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(55,36,102,0.3);
+    background: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--accent-glow);
 }
 .btn-login:disabled { opacity: 0.7; cursor: not-allowed; transform: none; }
 
@@ -176,7 +206,13 @@ body { background: var(--white); min-height: 100vh; }
 
 .alert-danger {
     background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
-    border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.875rem;
+    border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.875rem;
+    margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
+}
+
+.alert-success {
+    background: #f0fdf4; border: 1px solid #bbf7d0; color: #16a34a;
+    border-radius: var(--radius-sm); padding: 0.85rem 1rem; font-size: 0.875rem;
     margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;
 }
 
@@ -203,10 +239,10 @@ body { background: var(--white); min-height: 100vh; }
     <!-- LEFT -->
     <div class="login-left">
         <div class="left-header">
-            <div class="left-icon">
-                <img src="img/Icon1.png" alt="Logo Mappy Path">
+            <div class="left-logo">
+                <img src="img/Icon1.png" alt="Logo TKJPedia" style="width:48px;height:48px;object-fit:contain;">
             </div>
-            <span class="left-brand">Mappy Path</span>
+            <span class="left-brand">TKJPedia</span>
         </div>
 
         <div class="left-content">
@@ -232,14 +268,14 @@ body { background: var(--white); min-height: 100vh; }
             </div>
         </div>
 
-        <div class="left-footer">© 2026 Mappy Path. All rights reserved.</div>
+        <div class="left-footer">© 2026 TKJPedia. All rights reserved.</div>
     </div>
 
     <!-- RIGHT -->
     <div class="login-right">
         <div class="login-form-box">
             <h1 class="form-title">Masuk</h1>
-            <p class="form-subtitle">Masuk ke akun</p>
+            <p class="form-subtitle">Masuk ke akunmu dan lanjut belajar</p>
 
             @if ($errors->any())
                 <div class="alert-danger">
@@ -248,7 +284,7 @@ body { background: var(--white); min-height: 100vh; }
             @endif
 
             @if (session('status'))
-                <div style="background:#f0fdf4;border:1px solid #bbf7d0;color:#16a34a;border-radius:10px;padding:.85rem 1rem;font-size:.875rem;margin-bottom:1.5rem;">
+                <div class="alert-success">
                     ✅ {{ session('status') }}
                 </div>
             @endif

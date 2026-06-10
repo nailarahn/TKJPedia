@@ -1,328 +1,383 @@
 @extends('layouts.dashboard')
+@section('title', 'Kuis - ' . $stage->title)
+
+@push('styles')
+<style>
+.quiz-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 1.5rem 1rem 4rem;
+}
+
+/* Header */
+.quiz-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+    gap: 1rem;
+}
+.quiz-back {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    font-size: .85rem;
+    font-weight: 500;
+    color: var(--gray-500);
+    text-decoration: none;
+    transition: color .2s;
+}
+.quiz-back:hover { color: var(--primary); }
+
+.quiz-counter {
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--gray-500);
+}
+.quiz-counter span { color: var(--primary); }
+
+/* Progress bar */
+.quiz-progress-track {
+    width: 100%;
+    height: 6px;
+    background: var(--gray-200, #e5e7eb);
+    border-radius: 99px;
+    margin-bottom: 2rem;
+    overflow: hidden;
+}
+.quiz-progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 99px;
+    transition: width .4s cubic-bezier(.4,0,.2,1);
+}
+
+/* Card soal */
+.question-slide {
+    display: none;
+}
+.question-slide.active {
+    display: block;
+    animation: fadeUp .35s ease;
+}
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+.q-card {
+    background: #fff;
+    border-radius: 20px;
+    border: 1.5px solid #e9e6f5;
+    padding: 2rem 2rem 1.5rem;
+    box-shadow: 0 4px 24px rgba(55,36,102,.06);
+}
+.q-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--primary);
+    background: #f4f1ff;
+    padding: .3rem .85rem;
+    border-radius: 99px;
+    margin-bottom: 1.25rem;
+}
+.q-text {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+}
+
+/* Opsi */
+.options-list {
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+}
+.opt {
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+    padding: .9rem 1.1rem;
+    border: 2px solid #ede9f8;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: border-color .18s, background .18s, transform .12s;
+    user-select: none;
+}
+.opt:hover {
+    border-color: var(--primary);
+    background: #f7f5ff;
+    transform: translateX(3px);
+}
+.opt.selected {
+    border-color: var(--primary);
+    background: #f4f1ff;
+}
+.opt input[type="radio"] { display: none; }
+
+.opt-key {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #f0edfb;
+    border: 2px solid #d4cdf0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .8rem;
+    font-weight: 800;
+    color: var(--primary);
+    transition: background .18s, border-color .18s, color .18s;
+}
+.opt.selected .opt-key {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: #fff;
+}
+.opt-text {
+    font-size: .95rem;
+    color: #374151;
+    line-height: 1.5;
+    flex: 1;
+}
+
+/* Nav bawah */
+.quiz-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 1.75rem;
+    gap: 1rem;
+}
+.btn-prev, .btn-next, .btn-submit-quiz {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .75rem 1.6rem;
+    border-radius: 12px;
+    font-size: .9rem;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+}
+.btn-prev {
+    background: #f4f1ff;
+    color: var(--primary);
+}
+.btn-prev:hover { background: #ebe6ff; }
+.btn-prev:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+}
+.btn-next {
+    background: var(--primary);
+    color: #fff;
+    margin-left: auto;
+}
+.btn-next:hover { background: var(--primary-light, #5b3fa8); transform: translateY(-1px); }
+.btn-next:disabled {
+    background: #c4b8e8;
+    cursor: not-allowed;
+    transform: none;
+}
+.btn-submit-quiz {
+    background: #16a34a;
+    color: #fff;
+    margin-left: auto;
+}
+.btn-submit-quiz:hover { background: #15803d; transform: translateY(-1px); }
+.btn-submit-quiz:disabled {
+    background: #86efac;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Dot navigasi */
+.quiz-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    margin-top: 1.25rem;
+}
+.dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 99px;
+    background: #ddd6f5;
+    transition: all .3s;
+    cursor: pointer;
+}
+.dot.answered { background: #a78bfa; }
+.dot.current  { background: var(--primary); width: 22px; }
+</style>
+@endpush
 
 @section('content')
-<div class="quiz-container">
+
+<div class="quiz-wrap">
 
     {{-- Header --}}
-    <div class="quiz-header">
-        <a href="{{ url()->previous() }}" class="btn-back">
-            <i class="ti ti-arrow-left"></i> Kembali ke Materi
+    <div class="quiz-top">
+        <a href="{{ route('roadmap.stage', [$roadmapId, $stage->id]) }}" class="quiz-back">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+            Kembali ke Materi
         </a>
-        <div class="quiz-meta">
-            <span class="quiz-badge-label">
-                <i class="ti ti-help-circle"></i> Kuis
-            </span>
-            <h1 class="quiz-title">{{ $quiz->title }}</h1>
-            <p class="quiz-subtitle">{{ $stage->title }}</p>
-        </div>
-        <div class="quiz-info-row">
-            <div class="quiz-info-chip">
-                <i class="ti ti-list-numbers"></i>
-                {{ $quiz->questions->count() }} Soal
-            </div>
-            <div class="quiz-info-chip">
-                <i class="ti ti-trophy"></i>
-                Nilai lulus {{ $quiz->passing_score }}%
-            </div>
-            <div class="quiz-info-chip">
-                <i class="ti ti-coin"></i>
-                +{{ $quiz->points_reward }} poin
-            </div>
-            @if($lastAttempt)
-            <div class="quiz-info-chip {{ $lastAttempt->is_passed ? 'chip-success' : 'chip-danger' }}">
-                <i class="ti ti-history"></i>
-                Percobaan terakhir: {{ $lastAttempt->score }}%
-            </div>
-            @endif
+        <div class="quiz-counter">
+            Soal <span id="cur-num">1</span> / {{ $quiz->questions->count() }}
         </div>
     </div>
 
-    {{-- Form Soal --}}
+    {{-- Progress bar --}}
+    <div class="quiz-progress-track">
+        <div class="quiz-progress-fill" id="prog-fill" style="width: {{ round(1 / $quiz->questions->count() * 100) }}%"></div>
+    </div>
+
+    {{-- Form --}}
     <form action="{{ route('roadmap.quiz.submit', [$roadmapId, $stage->id]) }}" method="POST" id="quiz-form">
         @csrf
 
         @foreach($quiz->questions as $index => $question)
-        <div class="question-card" id="question-{{ $question->id }}">
-            <div class="question-number">Soal {{ $index + 1 }}</div>
-            <p class="question-text">{{ $question->question }}</p>
+        <div class="question-slide {{ $index === 0 ? 'active' : '' }}" data-index="{{ $index }}">
+            <div class="q-card">
+                <div class="q-label">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+                    Pertanyaan {{ $index + 1 }}
+                </div>
+                <p class="q-text">{{ $question->question }}</p>
 
-            <div class="options-grid">
-                @foreach($question->getOptionsArray() as $key => $option)
-                <label class="option-label" for="ans_{{ $question->id }}_{{ $key }}">
-                    <input
-                        type="radio"
-                        name="answers[{{ $question->id }}]"
-                        id="ans_{{ $question->id }}_{{ $key }}"
-                        value="{{ $key }}"
-                        class="option-radio"
-                        required
-                    >
-                    <span class="option-key">{{ strtoupper($key) }}</span>
-                    <span class="option-text">{{ $option }}</span>
-                </label>
-                @endforeach
+                <div class="options-list">
+                    @foreach($question->getOptionsArray() as $key => $option)
+                    <label class="opt" id="opt-{{ $question->id }}-{{ $key }}">
+                        <input
+                            type="radio"
+                            name="answers[{{ $question->id }}]"
+                            value="{{ $key }}"
+                            class="opt-radio"
+                            data-qid="{{ $question->id }}"
+                            onchange="selectOpt(this)"
+                        >
+                        <span class="opt-key">{{ strtoupper($key) }}</span>
+                        <span class="opt-text">{{ $option }}</span>
+                    </label>
+                    @endforeach
+                </div>
+            </div>
+
+            {{-- Navigasi --}}
+            <div class="quiz-nav">
+                <button type="button" class="btn-prev" onclick="goTo({{ $index - 1 }})" {{ $index === 0 ? 'disabled' : '' }}>
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
+                    Sebelumnya
+                </button>
+
+                @if($index < $quiz->questions->count() - 1)
+                <button type="button" class="btn-next" id="next-{{ $index }}" onclick="goTo({{ $index + 1 }})">
+                    Selanjutnya
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+                </button>
+                @else
+                <button type="submit" class="btn-submit-quiz" id="btn-submit">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                    Kumpulkan Jawaban
+                </button>
+                @endif
             </div>
         </div>
         @endforeach
 
-        {{-- Submit --}}
-        <div class="quiz-submit-area">
-            <div class="submit-warning">
-                <i class="ti ti-info-circle"></i>
-                Pastikan semua soal sudah dijawab sebelum submit.
-            </div>
-            <button type="submit" class="btn-submit" id="btn-submit">
-                <i class="ti ti-send"></i> Kumpulkan Jawaban
-            </button>
-        </div>
     </form>
 
-</div>
+    {{-- Dot navigasi --}}
+    <div class="quiz-dots" id="quiz-dots">
+        @foreach($quiz->questions as $index => $question)
+        <div class="dot {{ $index === 0 ? 'current' : '' }}"
+             id="dot-{{ $index }}"
+             onclick="goTo({{ $index }})"
+             title="Soal {{ $index + 1 }}">
+        </div>
+        @endforeach
+    </div>
 
-{{-- Progress soal (floating) --}}
-<div class="quiz-progress-bar" id="quiz-progress-bar">
-    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
-    <span class="progress-label" id="progress-label">0 / {{ $quiz->questions->count() }} dijawab</span>
 </div>
 @endsection
 
-@push('styles')
-<style>
-    .quiz-container {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 2rem 1.5rem 6rem;
-    }
-
-    /* Header */
-    .btn-back {
-        display: inline-flex;
-        align-items: center;
-        gap: .4rem;
-        font-size: .875rem;
-        color: var(--color-text-secondary);
-        text-decoration: none;
-        margin-bottom: 1.5rem;
-        transition: color .2s;
-    }
-    .btn-back:hover { color: var(--color-text-primary); }
-
-    .quiz-header {
-        margin-bottom: 2rem;
-    }
-    .quiz-badge-label {
-        display: inline-flex;
-        align-items: center;
-        gap: .3rem;
-        font-size: .75rem;
-        font-weight: 500;
-        color: #185FA5;
-        background: #E6F1FB;
-        padding: .25rem .75rem;
-        border-radius: 99px;
-        margin-bottom: .75rem;
-    }
-    .quiz-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: var(--color-text-primary);
-        margin: 0 0 .25rem;
-    }
-    .quiz-subtitle {
-        font-size: .9rem;
-        color: var(--color-text-secondary);
-        margin: 0 0 1rem;
-    }
-    .quiz-info-row {
-        display: flex;
-        flex-wrap: wrap;
-        gap: .5rem;
-    }
-    .quiz-info-chip {
-        display: inline-flex;
-        align-items: center;
-        gap: .3rem;
-        font-size: .8rem;
-        color: var(--color-text-secondary);
-        background: var(--color-background-secondary);
-        border: 1px solid var(--color-border-tertiary);
-        padding: .3rem .75rem;
-        border-radius: 99px;
-    }
-    .chip-success { color: #0F6E56; background: #E1F5EE; border-color: #9FE1CB; }
-    .chip-danger  { color: #993C1D; background: #FAECE7; border-color: #F5C4B3; }
-
-    /* Question card */
-    .question-card {
-        background: var(--color-background-primary);
-        border: 1px solid var(--color-border-tertiary);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 1.25rem;
-        transition: border-color .2s, box-shadow .2s;
-    }
-    .question-card.answered {
-        border-color: #9FE1CB;
-    }
-    .question-number {
-        font-size: .75rem;
-        font-weight: 600;
-        color: #185FA5;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-        margin-bottom: .75rem;
-    }
-    .question-text {
-        font-size: 1rem;
-        color: var(--color-text-primary);
-        line-height: 1.6;
-        margin: 0 0 1.25rem;
-    }
-
-    /* Options */
-    .options-grid {
-        display: flex;
-        flex-direction: column;
-        gap: .6rem;
-    }
-    .option-label {
-        display: flex;
-        align-items: center;
-        gap: .75rem;
-        padding: .75rem 1rem;
-        border: 1.5px solid var(--color-border-tertiary);
-        border-radius: 10px;
-        cursor: pointer;
-        transition: border-color .15s, background .15s;
-    }
-    .option-label:hover {
-        border-color: #378ADD;
-        background: #E6F1FB;
-    }
-    .option-radio { display: none; }
-    .option-radio:checked + .option-key {
-        background: #185FA5;
-        color: #fff;
-    }
-    .option-label:has(.option-radio:checked) {
-        border-color: #185FA5;
-        background: #E6F1FB;
-    }
-    .option-key {
-        flex-shrink: 0;
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: var(--color-background-secondary);
-        border: 1.5px solid var(--color-border-secondary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: .75rem;
-        font-weight: 700;
-        color: var(--color-text-secondary);
-        transition: background .15s, color .15s;
-    }
-    .option-text {
-        font-size: .9rem;
-        color: var(--color-text-primary);
-        line-height: 1.5;
-    }
-
-    /* Submit area */
-    .quiz-submit-area {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        flex-wrap: wrap;
-        gap: 1rem;
-        margin-top: 2rem;
-        padding: 1.5rem;
-        background: var(--color-background-secondary);
-        border-radius: 16px;
-        border: 1px solid var(--color-border-tertiary);
-    }
-    .submit-warning {
-        display: flex;
-        align-items: center;
-        gap: .4rem;
-        font-size: .85rem;
-        color: var(--color-text-secondary);
-    }
-    .btn-submit {
-        display: inline-flex;
-        align-items: center;
-        gap: .5rem;
-        padding: .75rem 2rem;
-        background: #185FA5;
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: .95rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: background .2s, transform .1s;
-    }
-    .btn-submit:hover    { background: #0C447C; }
-    .btn-submit:active   { transform: scale(.98); }
-    .btn-submit:disabled { background: #B5D4F4; cursor: not-allowed; }
-
-    /* Floating progress bar */
-    .quiz-progress-bar {
-        position: fixed;
-        bottom: 0; left: 0; right: 0;
-        height: 48px;
-        background: var(--color-background-primary);
-        border-top: 1px solid var(--color-border-tertiary);
-        display: flex;
-        align-items: center;
-        padding: 0 1.5rem;
-        gap: 1rem;
-        z-index: 50;
-    }
-    .progress-fill {
-        height: 6px;
-        background: #185FA5;
-        border-radius: 99px;
-        transition: width .3s ease;
-        flex: 1;
-    }
-    .quiz-progress-bar { flex-direction: row; }
-    .progress-label {
-        font-size: .8rem;
-        color: var(--color-text-secondary);
-        white-space: nowrap;
-    }
-</style>
-@endpush
-
 @push('scripts')
 <script>
-    const totalQuestions = {{ $quiz->questions->count() }};
-    const radios = document.querySelectorAll('.option-radio');
-    const progressFill  = document.getElementById('progress-fill');
-    const progressLabel = document.getElementById('progress-label');
+const total     = {{ $quiz->questions->count() }};
+const answered  = {};
+let   current   = 0;
 
-    function updateProgress() {
-        const answered = new Set();
-        document.querySelectorAll('.option-radio:checked').forEach(r => {
-            const name = r.getAttribute('name');
-            answered.add(name);
-        });
+function goTo(idx) {
+    if (idx < 0 || idx >= total) return;
 
-        const count = answered.size;
-        const pct   = Math.round((count / totalQuestions) * 100);
-        progressFill.style.width  = pct + '%';
-        progressLabel.textContent = count + ' / ' + totalQuestions + ' dijawab';
+    // Sembunyikan slide aktif
+    document.querySelectorAll('.question-slide').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.remove('current');
+        d.classList.toggle('answered', !!answered[i] && i !== idx);
+    });
 
-        // Tandai card yang sudah dijawab
-        document.querySelectorAll('.question-card').forEach(card => {
-            const id      = card.id.replace('question-', '');
-            const checked = document.querySelector(`input[name="answers[${id}]"]:checked`);
-            card.classList.toggle('answered', !!checked);
-        });
+    // Tampilkan slide baru
+    document.querySelector(`.question-slide[data-index="${idx}"]`).classList.add('active');
+    document.getElementById(`dot-${idx}`).classList.add('current');
+    document.getElementById(`dot-${idx}`).classList.remove('answered');
+
+    // Update counter & progress
+    current = idx;
+    document.getElementById('cur-num').textContent = idx + 1;
+    const pct = Math.round(((idx + 1) / total) * 100);
+    document.getElementById('prog-fill').style.width = pct + '%';
+}
+
+function selectOpt(radio) {
+    const qid = radio.dataset.qid;
+
+    // Reset semua opsi di soal ini
+    document.querySelectorAll(`input[name="answers[${qid}]"]`).forEach(r => {
+        document.getElementById(`opt-${qid}-${r.value}`).classList.remove('selected');
+    });
+
+    // Tandai yang dipilih
+    document.getElementById(`opt-${qid}-${radio.value}`).classList.add('selected');
+
+    // Catat jawaban
+    answered[current] = radio.value;
+
+    // Update dot
+    document.getElementById(`dot-${current}`).classList.add('answered');
+
+    // Aktifkan tombol submit kalau soal terakhir
+    const submitBtn = document.getElementById('btn-submit');
+    if (submitBtn) {
+        const allAnswered = Object.keys(answered).length === total;
+        submitBtn.disabled = !allAnswered;
+        if (allAnswered) {
+            submitBtn.style.background = '#16a34a';
+        }
     }
+}
 
-    radios.forEach(r => r.addEventListener('change', updateProgress));
+// Submit guard — pastikan semua soal dijawab
+document.getElementById('quiz-form').addEventListener('submit', function(e) {
+    if (Object.keys(answered).length < total) {
+        e.preventDefault();
+        const unanswered = total - Object.keys(answered).length;
+        alert(`Masih ada ${unanswered} soal yang belum dijawab. Cek kembali semua soal ya!`);
+        // Arahkan ke soal pertama yang belum dijawab
+        for (let i = 0; i < total; i++) {
+            if (!answered[i]) { goTo(i); break; }
+        }
+    }
+});
 </script>
 @endpush

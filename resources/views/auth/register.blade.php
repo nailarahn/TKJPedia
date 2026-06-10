@@ -1,24 +1,27 @@
 @extends('layouts.app')
  
-@section('title', 'Daftar - Mappy Path')
+@section('title', 'Daftar - TKJPedia')
  
 @push('head')
 <style>
 :root {
-    --primary: #372466;
-    --primary-light: #4e35a0;
-    --accent: #7c5cbf;
-    --accent-light: #a78bd4;
+    --primary: #FF4D00;
+    --primary-light: #FF6A00;
+    --accent: #FF8100;
+    --accent-light: #FFB366;
+    --accent-glow: rgba(255,77,0,0.25);
     --white: #ffffff;
-    --gray-100: #f4f1ff;
-    --gray-200: #e4e0f5;
-    --gray-300: #c8bfe8;
-    --gray-400: #9589b8;
-    --gray-500: #6d5f9a;
-    --gray-700: #332a5c;
-    --gray-800: #1e1640;
+    --gray-50: #fffaf5;
+    --gray-100: #fff3e6;
+    --gray-200: #ffe0bf;
+    --gray-300: #f5c89a;
+    --gray-400: #c28d6d;
+    --gray-500: #9a6a4a;
+    --gray-700: #5a3722;
+    --gray-800: #3b2415;
     --danger: #ef4444;
-    --success: #22c55e;
+    --radius: 18px;
+    --radius-sm: 12px;
     --font: 'Poppins', sans-serif;
 }
  
@@ -32,7 +35,7 @@ body { background: var(--white); min-height: 100vh; }
  
 /* LEFT PANEL */
 .register-left {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 50%, var(--accent) 100%);
+    background: linear-gradient(135deg, #FF8100 0%, #FF6A00 50%, #FF4D00 100%);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -56,7 +59,7 @@ body { background: var(--white); min-height: 100vh; }
     background: radial-gradient(circle, rgba(255,255,255,0.06) 0%, transparent 70%);
     pointer-events: none;
 }
- 
+
 .left-header { display: flex; align-items: center; gap: 0.75rem; z-index: 1; }
 .left-logo {
     width: 40px; height: 40px;
@@ -66,7 +69,7 @@ body { background: var(--white); min-height: 100vh; }
     font-weight: 800; color: white; font-size: 0.95rem; object-fit: contain;
 }
 .left-brand { font-size: 1.2rem; font-weight: 700; color: white; }
- 
+
 .left-content { z-index: 1; }
 .left-tagline {
     font-size: clamp(1.3rem, 2.5vw, 1.7rem);
@@ -90,7 +93,7 @@ body { background: var(--white); min-height: 100vh; }
     font-size: 0.75rem; flex-shrink: 0;
 }
 .left-footer { font-size: 0.78rem; color: rgba(255,255,255,0.5); z-index: 1; }
- 
+
 /* RIGHT PANEL */
 .register-right {
     display: flex;
@@ -98,16 +101,16 @@ body { background: var(--white); min-height: 100vh; }
     justify-content: center;
     align-items: center;
     padding: 3rem 4rem;
-    background: var(--white);
+    background: var(--gray-50);
     overflow-y: auto;
 }
 .register-form-box { width: 100%; max-width: 440px; }
- 
+
 .form-title { font-size: 2rem; font-weight: 800; color: var(--primary); margin-bottom: 0.4rem; }
 .form-subtitle { font-size: 0.9rem; color: var(--gray-400); margin-bottom: 2rem; }
- 
+
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
- 
+
 .form-group { margin-bottom: 1.2rem; }
 .form-label {
     display: block; font-size: 0.85rem; font-weight: 600;
@@ -115,20 +118,23 @@ body { background: var(--white); min-height: 100vh; }
 }
 .form-input {
     width: 100%; padding: 0.75rem 1rem;
-    border: 1.5px solid var(--gray-200); border-radius: 10px;
+    border: 1.5px solid var(--gray-200); border-radius: var(--radius-sm);
     font-family: var(--font); font-size: 0.875rem; color: var(--gray-800);
     background: var(--white); transition: all 0.2s; outline: none;
 }
 .form-input::placeholder { color: var(--gray-300); }
-.form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(55,36,102,0.08); }
+.form-input:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--accent-glow); /* FIX: was rgba(55,36,102,0.08) — ungu */
+}
 .form-input.is-invalid { border-color: var(--danger); }
- 
+
 .input-hint { font-size: 0.75rem; color: var(--gray-400); margin-top: 0.3rem; }
 .input-error {
     font-size: 0.75rem; color: var(--danger); margin-top: 0.3rem;
     display: flex; align-items: center; gap: 0.25rem;
 }
- 
+
 .password-field { position: relative; }
 .password-toggle {
     position: absolute; right: 0.85rem; top: 50%; transform: translateY(-50%);
@@ -138,18 +144,18 @@ body { background: var(--white); min-height: 100vh; }
 }
 .password-toggle:hover { color: var(--primary); }
 .password-field .form-input { padding-right: 2.8rem; }
- 
+
 .pwd-strength { margin-top: 0.5rem; }
 .pwd-bars { display: flex; gap: 4px; margin-bottom: 0.25rem; }
 .pwd-bar { flex: 1; height: 4px; border-radius: 2px; background: var(--gray-200); transition: background 0.3s; }
-.pwd-bar.weak { background: #ef4444; }
+.pwd-bar.weak   { background: #ef4444; }
 .pwd-bar.medium { background: #f59e0b; }
 .pwd-bar.strong { background: #22c55e; }
 .pwd-label { font-size: 0.72rem; color: var(--gray-400); }
-.pwd-label.weak { color: #ef4444; }
+.pwd-label.weak   { color: #ef4444; }
 .pwd-label.medium { color: #f59e0b; }
 .pwd-label.strong { color: #22c55e; }
- 
+
 .terms-row {
     display: flex; align-items: flex-start; gap: 0.6rem; margin-bottom: 1.5rem;
 }
@@ -160,38 +166,51 @@ body { background: var(--white); min-height: 100vh; }
 .terms-row label { font-size: 0.82rem; color: var(--gray-500); line-height: 1.5; cursor: pointer; }
 .terms-row label a { color: var(--primary); font-weight: 600; text-decoration: none; }
 .terms-row label a:hover { text-decoration: underline; }
- 
+
 .btn-register {
-    width: 100%; padding: 0.9rem; background: var(--primary);
-    color: white; border: none; border-radius: 10px;
+    width: 100%; padding: 0.9rem;
+    background: var(--primary);
+    color: white; border: none; border-radius: var(--radius-sm);
     font-family: var(--font); font-size: 1rem; font-weight: 700;
     cursor: pointer; transition: all 0.25s;
+    position: relative; overflow: hidden;
 }
+.btn-register::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    transition: left 0.5s;
+}
+.btn-register:hover::before { left: 100%; }
 .btn-register:hover {
-    background: var(--primary-light); transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(55,36,102,0.3);
+    background: var(--primary-light);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px var(--accent-glow); /* FIX: was rgba(55,36,102,0.3) — ungu */
 }
 .btn-register:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
- 
+
 .login-row {
     text-align: center; margin-top: 1.25rem;
     font-size: 0.875rem; color: var(--gray-400);
 }
 .login-row a { color: var(--primary); font-weight: 700; text-decoration: none; }
 .login-row a:hover { text-decoration: underline; }
- 
+
 .alert-danger {
     background: #fef2f2; border: 1px solid #fecaca; color: #dc2626;
-    border-radius: 10px; padding: 0.85rem 1rem; font-size: 0.875rem; margin-bottom: 1.25rem;
+    border-radius: var(--radius-sm); padding: 0.85rem 1rem;
+    font-size: 0.875rem; margin-bottom: 1.25rem;
 }
 .alert-danger ul { margin: 0; padding-left: 1.25rem; }
 .alert-danger li { margin-bottom: 0.2rem; }
- 
+
 .step-indicator { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.75rem; }
 .step-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--gray-200); transition: all 0.3s; }
 .step-dot.active { width: 24px; border-radius: 4px; background: var(--primary); }
 .step-label { font-size: 0.78rem; color: var(--gray-400); margin-left: 0.5rem; }
- 
+
 @media (max-width: 900px) {
     .register-wrapper { grid-template-columns: 1fr; }
     .register-left { padding: 2rem; min-height: 200px; justify-content: center; gap: 1rem; }
@@ -215,9 +234,9 @@ body { background: var(--white); min-height: 100vh; }
     <div class="register-left">
         <div class="left-header">
             <div class="left-icon">
-                <img src="img/Icon1.png" alt="Logo Mappy Path">
+                <img src="img/Icon1.png" alt="Logo Mappy ">
             </div>
-            <span class="left-brand"> Mappy Path</span>
+            <span class="left-brand"> TKJPedia</span>
         </div>
  
         <div class="left-content">
@@ -247,7 +266,7 @@ body { background: var(--white); min-height: 100vh; }
             </div>
         </div>
  
-        <div class="left-footer">© 2026 Mappy Path. All rights reserved.</div>
+        <div class="left-footer">© 2026 TKJPedia. All rights reserved.</div>
     </div>
  
     <!-- RIGHT PANEL -->
