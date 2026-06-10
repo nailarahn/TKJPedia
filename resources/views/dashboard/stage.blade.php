@@ -42,7 +42,7 @@
 }
 .yt-thumb .badge-top {
     position: absolute; top: 1rem; left: 1rem;
-    background: #FFB366; color: white; font-size: .7rem; font-weight: 700; /* FIX: was rgba(55,36,102,.85) ungu */
+    background: #FFB366; color: white; font-size: .7rem; font-weight: 700; 
     padding: .3rem .8rem; border-radius: 50px; backdrop-filter: blur(6px);
     border: 1px solid rgba(255,255,255,.2);
 }
@@ -303,7 +303,7 @@
                 <div class="yt-thumb" id="ytThumb" onclick="loadYoutube('{{ $ytId }}')">
                     <div class="badge-top">🎬 {{ $stage->getTypeLabel() }}</div>
                     <div class="play-circle">
-                        <svg width="28" height="28" fill="#372466" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                        <svg width="28" height="28" fill="#FF4D00" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                     </div>
                     <div class="thumb-title">{{ $stage->title }}</div>
                     <div class="thumb-sub">{{ $stage->description }}</div>
