@@ -80,30 +80,106 @@
   .btn-save:not(:disabled) { background: var(--primary); color: #fff; box-shadow: 0 4px 16px rgba(55,36,102,.25); }
   .btn-save:not(:disabled):hover { background: var(--primary-light); transform: translateY(-1px); }
 
+  /* DATE PICKERS - CLICKABLE */
+  #start_date, #deadline {
+    cursor: pointer !important;
+    background-color: #fff !important;
+    padding-right: 40px !important;
+  }
+
+  /* ── Flatpickr base ── */
   .flatpickr-calendar {
-    border-radius: 12px !important;
-    box-shadow: 0 8px 32px rgba(55,36,102,.15) !important;
-    border: 1.5px solid var(--gray-200) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 12px 40px rgba(255,107,0,.18) !important;
+    border: 2px solid #ffb347 !important;
     font-family: inherit !important;
+    overflow: visible !important;
+    position: absolute !important;
+    z-index: 99999 !important;
   }
   .flatpickr-day.selected,
   .flatpickr-day.selected:hover {
-    background: var(--primary) !important;
-    border-color: var(--primary) !important;
+    background: linear-gradient(135deg, #ff6b00, #ff9f43) !important;
+    border-color: #ff6b00 !important;
+    box-shadow: 0 2px 8px rgba(255,107,0,.4) !important;
+    font-weight: 700 !important;
   }
-  .flatpickr-day:hover { background: rgba(55,36,102,.08) !important; }
+  .flatpickr-day:hover:not(.selected) {
+    background: rgba(255,107,0,.1) !important;
+    border-color: #ffb347 !important;
+  }
+  .flatpickr-day.today:not(.selected) {
+    border-color: #ff6b00 !important;
+    color: #ff6b00 !important;
+    font-weight: 700 !important;
+  }
   .flatpickr-months .flatpickr-month,
   .flatpickr-weekdays,
   span.flatpickr-weekday {
-    background: var(--primary) !important;
+    background: linear-gradient(135deg, #ff6b00, #ff9f43) !important;
     color: #fff !important;
-    border-radius: 10px 10px 0 0;
+    font-weight: 700 !important;
   }
+  .flatpickr-months .flatpickr-month { border-radius: 0 !important; }
   .flatpickr-current-month .flatpickr-monthDropdown-months,
-  .flatpickr-current-month input.cur-year { color: #fff !important; }
+  .flatpickr-current-month input.cur-year { color: #fff !important; font-weight: 700 !important; }
   .flatpickr-prev-month svg,
   .flatpickr-next-month svg { fill: #fff !important; }
-  #deadline, #start_date { cursor: pointer; background: #fff; padding-right: 40px; }
+  .flatpickr-prev-month:hover svg,
+  .flatpickr-next-month:hover svg { fill: #ffe0b2 !important; }
+
+  /* ── Rocket inside calendar ── */
+  .cal-rocket-wrap {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 10;
+    border-radius: 14px;
+  }
+  .cal-rocket {
+    position: absolute;
+    font-size: 22px;
+    line-height: 1;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  @keyframes calFly {
+    0%   { left: -40px; opacity: 0; }
+    6%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { left: 108%; opacity: 0; }
+  }
+  @keyframes calPuff {
+    0%   { opacity: .7; transform: scale(.5) translateY(0); }
+    100% { opacity: 0;  transform: scale(1.6) translateY(-10px); }
+  }
+  .cal-smoke {
+    position: absolute;
+    font-size: 11px;
+    pointer-events: none;
+  }
+  @keyframes starPop {
+    0%   { opacity: 0; transform: scale(0) rotate(0deg); }
+    50%  { opacity: 1; transform: scale(1.3) rotate(180deg); }
+    100% { opacity: 0; transform: scale(0) rotate(360deg); }
+  }
+  .cal-star {
+    position: absolute;
+    font-size: 10px;
+    pointer-events: none;
+    z-index: 11;
+    animation: starPop .8s ease-out forwards;
+  }
+  .flatpickr-day.selected::after {
+    content: '🚀';
+    position: absolute;
+    top: -8px; right: -6px;
+    font-size: 10px;
+    line-height: 1;
+    pointer-events: none;
+  }
+  .flatpickr-day.selected { position: relative !important; overflow: visible !important; }
 
   .toast {
     position: fixed; bottom: 22px; right: 22px;
@@ -146,76 +222,86 @@
     @csrf
     @if(isset($target)) @method('PUT') @endif
 
-    {{-- Field 1: nama target --}}
-    <div class="field">
-      <label class="field-lbl" for="name_display">Apa yang ingin kamu capai?</label>
-      <input type="text" class="f-input" id="name_display"
-             value="Menyelesaikan Materi Video" readonly>
-      <input type="hidden" name="name" value="Menyelesaikan Materi Video">
-      <span class="field-hint">Jenis target sudah ditentukan secara otomatis</span>
-    </div>
+{{-- Field 1: jenis target --}}
+<div class="field">
+  <label class="field-lbl" for="target_type">Apa yang ingin kamu capai?</label>
+  <div class="sel-wrap has-arrow">
+    <select class="f-select" id="target_type" name="name" required>
+      <option value="">-- Pilih jenis target --</option>
+      <option value="Menyelesaikan Materi Video"
+        {{ old('name', $target->name ?? '') == 'Menyelesaikan Materi Video' ? 'selected' : '' }}>
+        🎬 Menyelesaikan Materi Video
+      </option>
+      <option value="Menyelesaikan Kuis"
+        {{ old('name', $target->name ?? '') == 'Menyelesaikan Kuis' ? 'selected' : '' }}>
+        📝 Menyelesaikan Kuis
+      </option>
+    </select>
+  </div>
+  <span class="field-hint">Pilih jenis target yang ingin kamu capai minggu ini</span>
+</div>
 
-    {{-- Field 2: pilih roadmap --}}
-    <div class="field">
-      <label class="field-lbl" for="roadmap_id">Roadmap Terkait</label>
-      <div class="sel-wrap has-arrow">
-        <select class="f-select" id="roadmap_id" name="roadmap_id">
-          <option value="">-- Tidak terkait roadmap --</option>
-          @foreach($roadmaps as $roadmap)
-            <option value="{{ $roadmap->id }}"
-              {{ old('roadmap_id', $target->roadmap_id ?? '') == $roadmap->id ? 'selected' : '' }}>
-              {{ $roadmap->title }}
-            </option>
-          @endforeach
-        </select>
+{{-- Field 2: pilih roadmap --}}
+<div class="field">
+  <label class="field-lbl" for="roadmap_id">Roadmap Terkait</label>
+  <div class="sel-wrap has-arrow">
+    <select class="f-select" id="roadmap_id" name="roadmap_id">
+      <option value="">-- Tidak terkait roadmap --</option>
+      @foreach($roadmaps as $roadmap)
+        <option value="{{ $roadmap->id }}"
+          {{ old('roadmap_id', $target->roadmap_id ?? '') == $roadmap->id ? 'selected' : '' }}>
+          {{ $roadmap->title }}
+        </option>
+      @endforeach
+    </select>
+  </div>
+  <span class="field-hint">Hubungkan target ini dengan roadmap yang sedang kamu pelajari</span>
+</div>
+
+{{-- Field 3: jumlah --}}
+<div class="field">
+  <label class="field-lbl" for="target_value">Berapa Banyak?</label>
+  <input type="number" class="f-input" id="target_value" name="target_value"
+         min="1" max="999" placeholder="Contoh : 3"
+         value="{{ old('target_value', $target->target_value ?? '') }}"
+         autocomplete="off" required>
+  <span class="field-hint">Jumlah materi yang ingin diselesaikan</span>
+  @error('target_value')
+    <span class="err-msg" style="display:block">{{ $message }}</span>
+  @enderror
+  <span class="err-msg" id="valErr">Wajib masukkan jumlah (minimal 1)</span>
+</div>
+
+{{-- Field 4: durasi target --}}
+<div class="field">
+  <label class="field-lbl">Durasi Target</label>
+  <div class="date-row" style="display: flex; gap: 12px;">
+    <div style="flex: 1;">
+      <div class="sel-wrap has-calendar">
+        <input type="text" class="f-input" id="start_date" name="start_date"
+               placeholder="Tanggal mulai..."
+               value="{{ old('start_date', isset($target) ? $target->start_date?->format('Y-m-d') : '') }}"
+               autocomplete="off">
       </div>
-      <span class="field-hint">Hubungkan target ini dengan roadmap yang sedang kamu pelajari</span>
+      <span class="field-hint">Tanggal mulai</span>
+      <span class="err-msg" id="startErr">Wajib pilih tanggal mulai</span>
     </div>
-
-    {{-- Field 3: jumlah --}}
-    <div class="field">
-      <label class="field-lbl" for="target_value">Berapa Banyak?</label>
-      <input type="number" class="f-input" id="target_value" name="target_value"
-             min="1" max="999" placeholder="Contoh : 3"
-             value="{{ old('target_value', $target->target_value ?? '') }}"
-             autocomplete="off" required>
-      <span class="field-hint">Jumlah materi yang ingin diselesaikan</span>
-      @error('target_value')
-        <span class="err-msg" style="display:block">{{ $message }}</span>
-      @enderror
-      <span class="err-msg" id="valErr">Wajib masukkan jumlah (minimal 1)</span>
-    </div>
-
-    {{-- Field 4: durasi target --}}
-    <div class="field">
-      <label class="field-lbl">Durasi Target</label>
-      <div class="date-row" style="display: flex; gap: 12px;">
-        <div style="flex: 1;">
-          <div class="sel-wrap has-calendar">
-            <input type="text" class="f-input" id="start_date" name="start_date"
-                   placeholder="Tanggal mulai..."
-                   value="{{ old('start_date', isset($target) ? $target->start_date?->format('Y-m-d') : '') }}"
-                   autocomplete="off" readonly required>
-          </div>
-          <span class="field-hint">Tanggal mulai</span>
-          <span class="err-msg" id="startErr">Wajib pilih tanggal mulai</span>
-        </div>
-        <div style="flex: 1;">
-          <div class="sel-wrap has-calendar">
-            <input type="text" class="f-input" id="deadline" name="deadline"
-                   placeholder="Tanggal selesai..."
-                   value="{{ old('deadline', isset($target) ? $target->deadline?->format('Y-m-d') : '') }}"
-                   autocomplete="off" readonly required>
-          </div>
-          <span class="field-hint">Tanggal selesai</span>
-          <span class="err-msg" id="deadlineErr">Wajib pilih tanggal selesai</span>
-        </div>
+    <div style="flex: 1;">
+      <div class="sel-wrap has-calendar">
+        <input type="text" class="f-input" id="deadline" name="deadline"
+               placeholder="Tanggal selesai..."
+               value="{{ old('deadline', isset($target) ? $target->deadline?->format('Y-m-d') : '') }}"
+               autocomplete="off">
       </div>
+      <span class="field-hint">Tanggal selesai</span>
+      <span class="err-msg" id="deadlineErr">Wajib pilih tanggal selesai</span>
     </div>
+  </div>
+</div>
 
-    <button class="btn-save" type="submit" id="saveBtn" disabled>
-      {{ isset($target) ? 'Update Target' : 'Simpan Target' }}
-    </button>
+<button class="btn-save" type="submit" id="saveBtn" disabled>
+  {{ isset($target) ? 'Update Target' : 'Simpan Target' }}
+</button>
   </form>
 </div>
 
@@ -226,6 +312,9 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('✅ DOM Ready - Initializing date pickers...');
+  
   const valEl       = document.getElementById('target_value');
   const startEl     = document.getElementById('start_date');
   const deadlineEl  = document.getElementById('deadline');
@@ -234,15 +323,74 @@
   const startErr    = document.getElementById('startErr');
   const deadlineErr = document.getElementById('deadlineErr');
 
-  flatpickr("#start_date", {
+  // ── Rocket animation ──
+  function launchCalendarRocket(calEl) {
+    if (!calEl || calEl.querySelector('.cal-rocket-wrap')) return;
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cal-rocket-wrap';
+    calEl.appendChild(wrap);
+
+    const rocket = document.createElement('div');
+    rocket.className = 'cal-rocket';
+    rocket.textContent = '🚀';
+    rocket.style.animation = 'calFly 1.4s cubic-bezier(.3,0,.5,1) forwards';
+    wrap.appendChild(rocket);
+
+    ['💨','💨','💨','💨'].forEach((s, i) => {
+      setTimeout(() => {
+        const smoke = document.createElement('div');
+        smoke.className = 'cal-smoke';
+        smoke.textContent = s;
+        smoke.style.top  = (42 + Math.random() * 6) + '%';
+        smoke.style.left = (8 + i * 14) + 'px';
+        smoke.style.animation = 'calPuff .6s ease-out forwards';
+        wrap.appendChild(smoke);
+        setTimeout(() => smoke.remove(), 700);
+      }, 80 + i * 140);
+    });
+
+    const stars = ['✨','⭐','🌟','✨','⭐'];
+    stars.forEach((s, i) => {
+      setTimeout(() => {
+        const star = document.createElement('div');
+        star.className = 'cal-star';
+        star.textContent = s;
+        star.style.top  = (8 + Math.random() * 22) + 'px';
+        star.style.left = (20 + Math.random() * 200) + 'px';
+        calEl.appendChild(star);
+        setTimeout(() => star.remove(), 900);
+      }, i * 120);
+    });
+
+    setTimeout(() => {
+      if (wrap.parentNode) wrap.remove();
+    }, 1600);
+  }
+
+  const today = new Date();
+  today.setHours(0,0,0,0);
+
+  const fpConfig = {
     locale: "id",
     dateFormat: "Y-m-d",
-    minDate: "today",
+    minDate: today,
     disableMobile: false,
+    onOpen: function(_d, _s, instance) {
+      setTimeout(() => launchCalendarRocket(instance.calendarContainer), 60);
+    }
+  };
+
+  // START DATE PICKER
+  const startPicker = flatpickr("#start_date", {
+    ...fpConfig,
     onChange: function(selectedDates, dateStr) {
+      console.log('Start date changed:', dateStr);
       startErr.style.display = 'none';
       startEl.style.borderColor = '';
-      if (deadlinePicker) deadlinePicker.set('minDate', dateStr);
+      if (selectedDates.length && deadlinePicker) {
+        deadlinePicker.set('minDate', selectedDates[0]);
+      }
       check();
     },
     onClose: function(selectedDates) {
@@ -254,12 +402,11 @@
     }
   });
 
+  // DEADLINE DATE PICKER
   const deadlinePicker = flatpickr("#deadline", {
-    locale: "id",
-    dateFormat: "Y-m-d",
-    minDate: "today",
-    disableMobile: false,
+    ...fpConfig,
     onChange: function(selectedDates, dateStr) {
+      console.log('Deadline changed:', dateStr);
       deadlineErr.style.display = 'none';
       deadlineEl.style.borderColor = '';
       check();
@@ -273,12 +420,15 @@
     }
   });
 
+  // VALIDATION CHECK
   function check() {
     const v  = parseInt(valEl.value);
     const ok = valEl.value !== '' && v >= 1 && startEl.value !== '' && deadlineEl.value !== '';
     saveBtn.disabled = !ok;
+    console.log('Form valid:', ok);
   }
 
+  // QUANTITY INPUT LISTENER
   valEl.addEventListener('input', () => {
     const v = parseInt(valEl.value);
     if (!valEl.value || v < 1) {
@@ -303,5 +453,10 @@
     t.className = `toast ${type} show`;
     setTimeout(() => t.classList.remove('show'), 3500);
   }
+
+  console.log('🚀 Date pickers initialized successfully!');
+  console.log('Start picker:', startPicker);
+  console.log('Deadline picker:', deadlinePicker);
+});
 </script>
 @endpush
