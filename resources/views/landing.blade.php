@@ -1,23 +1,28 @@
 @extends('layouts.app')
 
-@section('title', 'Mappy Path - Wujudkan Impianmu di Dunia IT')
+@section('title', 'TKJPedia - Wujudkan Impianmu di Dunia IT')
 
 @push('head')
 <style>
 :root {
-    --primary: #372466;
-    --primary-light: #4e35a0;
-    --accent: #7c5cbf;
-    --accent-light: #a78bd4;
-    --accent-glow: rgba(124,92,191,0.25);
+    --primary: #FF4D00;
+    --primary-light: #FF6A00;
+    --accent: #FF8100;
+    --accent-light: #FFB366;
+    --accent-glow-soft:rgba(255,77,0,0.12);
+    --accent-glow:rgba(255,77,0,0.25);
+    --accent-glow-mid:rgba(255,77,0,0.35);
+    --accent-glow-strong:rgba(255,77,0,0.40);
+    --stat-warn: #f59e0b;
+    --stat-ok: #10b981;
     --white: #ffffff;
-    --gray-50: #fafafa;
-    --gray-100: #f4f1ff;
-    --gray-200: #e4e0f5;
-    --gray-400: #9589b8;
-    --gray-500: #6d5f9a;
-    --gray-700: #332a5c;
-    --gray-800: #1e1640;
+    --gray-50: #fffaf5;
+    --gray-100: #fff3e6;
+    --gray-200: #ffe0bf;
+    --gray-400: #c28d6d;
+    --gray-500: #9a6a4a;
+    --gray-700: #5a3722;
+    --gray-800: #3b2415;
     --radius: 18px;
     --radius-sm: 12px;
 }
@@ -46,14 +51,23 @@ body {
     justify-content: space-between;
     transition: box-shadow 0.3s;
 }
-.navbar.scrolled { box-shadow: 0 4px 24px rgba(55,36,102,0.08); }
+.navbar.scrolled { box-shadow: 0 4px 24px rgba(255,77,0,0.12); }
 .nav-brand {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     text-decoration: none;
 }
-.logo-icon img { width: 38px; height: 38px; object-fit: contain; }
+.logo-icon {
+    display: flex;
+    align-items: center;
+}
+.logo-icon img {
+    width: 38px;
+    height: 38px;
+    object-fit: contain;
+    display: block;
+}
 .nav-name {
     font-size: 1.1rem;
     font-weight: 700;
@@ -96,14 +110,14 @@ body {
     background: var(--primary-light);
     border-color: var(--primary-light);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px rgba(55,36,102,0.35);
+    box-shadow: 0 6px 20px rgba(255,77,0,0.35);
 }
 
 /* ─── HERO ─── */
 .hero {
     text-align: center;
     padding: 7rem 6% 5rem;
-    background: linear-gradient(160deg, #fdfcff 0%, #f0ecff 50%, #fafafe 100%);
+    background: linear-gradient(160deg, #fffaf5 0%, #fff3e6 50%, #fff8f2 100%);
     position: relative;
     overflow: hidden;
 }
@@ -116,17 +130,17 @@ body {
 }
 .hero-blob-1 {
     width: 500px; height: 500px;
-    background: radial-gradient(circle, #c4b0f5 0%, transparent 70%);
+    background: radial-gradient(circle, #ffd6b3 0%, transparent 70%);
     top: -150px; left: -100px;
 }
 .hero-blob-2 {
     width: 400px; height: 400px;
-    background: radial-gradient(circle, #a78bd4 0%, transparent 70%);
+    background: radial-gradient(circle, #ffb366 0%, transparent 70%);
     bottom: -100px; right: -80px;
 }
 .hero-blob-3 {
     width: 300px; height: 300px;
-    background: radial-gradient(circle, #e0d4ff 0%, transparent 70%);
+    background: radial-gradient(circle, #ffe6cc 0%, transparent 70%);
     top: 40%; left: 50%;
     transform: translateX(-50%);
 }
@@ -176,7 +190,7 @@ body {
     font-weight: 600;
     text-decoration: none;
     transition: all 0.3s;
-    box-shadow: 0 4px 20px rgba(55,36,102,0.25);
+    box-shadow: 0 4px 20px rgba(255,77,0,0.25);
     position: relative;
     overflow: hidden;
 }
@@ -191,7 +205,7 @@ body {
 .btn-cta-primary:hover::before { left: 100%; }
 .btn-cta-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 36px rgba(55,36,102,0.4);
+    box-shadow: 0 10px 36px rgba(255,77,0,0.4);
 }
 
 .hero-stats {
@@ -215,7 +229,7 @@ body {
     width: 22px;
     height: 22px;
     border-radius: 50%;
-    border: 2px solid var(--gray-300);
+    border: 2px solid var(--gray-200);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -233,7 +247,7 @@ body {
     display: flex;
     justify-content: center;
     padding: 2rem 6% 5rem;
-    background: linear-gradient(180deg, #f0ecff 0%, #fff 100%);
+    background: linear-gradient(180deg, #fff3e6 0%, #fff 100%);
 }
 .demo-card {
     background: white;
@@ -242,7 +256,7 @@ body {
     color: var(--gray-800);
     width: 100%;
     max-width: 520px;
-    box-shadow: 0 8px 40px rgba(55,36,102,0.12), 0 2px 8px rgba(55,36,102,0.06);
+    box-shadow: 0 8px 40px rgba(255,77,0,0.15), 0 2px 8px rgba(255,77,0,0.08);
     border: 2.5px solid var(--accent);
     animation: floatCard 5s ease-in-out infinite;
     position: relative;
@@ -275,13 +289,13 @@ body {
 .demo-user-name { font-size: 0.95rem; font-weight: 700; color: var(--gray-800); }
 .demo-user-stage { font-size: 0.8rem; color: var(--gray-500); margin-top: 0.15rem; }
 .demo-badge {
-    background: #fef3c7;
-    color: #92400e;
+    background: #fff3e6;
+    color: #cc3300;
+    border: 1px solid #ffb366;
     border-radius: 8px;
     padding: 0.3rem 0.65rem;
     font-size: 0.72rem;
     font-weight: 700;
-    border: 1px solid #fde68a;
     white-space: nowrap;
 }
 
@@ -322,7 +336,7 @@ body {
     gap: 0.75rem;
 }
 .demo-stat-box {
-    background: #f8f7ff;
+    background: #fff8f2;
     border-radius: 12px;
     padding: 0.85rem 0.75rem;
     text-align: center;
@@ -416,13 +430,13 @@ a.feature-card {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(55,36,102,0.03), transparent);
+    background: linear-gradient( 135deg, rgba(255,77,0,0.05), transparent);
     opacity: 0;
     transition: opacity 0.3s;
 }
 .feature-card:hover {
     border-color: var(--accent-light);
-    box-shadow: 0 16px 48px rgba(55,36,102,0.13), 0 2px 8px rgba(55,36,102,0.06);
+    box-shadow: 0 16px 48px rgba(255,77,0,0.15), 0 2px 8px rgba(255,77,0,0.08);
     transform: translateY(-6px);
 }
 .feature-card:hover::before { opacity: 1; }
@@ -489,7 +503,7 @@ a.feature-card {
     font-size: 0.72rem;
     font-weight: 700;
     color: var(--accent);
-    background: rgba(124,92,191,0.08);
+    background: rgba(255,77,0,0.10);
     padding: 0.25rem 0.65rem;
     border-radius: 50px;
     letter-spacing: 0.04em;
@@ -549,7 +563,7 @@ a.feature-card {
     transition: all 0.3s;
 }
 .how-card:hover {
-    box-shadow: 0 12px 40px rgba(55,36,102,0.1);
+    box-shadow: 0 12px 40px rgba(255,77,0,0.15);
     transform: translateY(-4px);
     border-color: var(--accent-light);
 }
@@ -561,7 +575,7 @@ a.feature-card {
     margin-bottom: 1rem;
     transition: color 0.3s;
 }
-.how-card:hover .how-number { color: rgba(124,92,191,0.2); }
+.how-card:hover .how-number { color: rgba(255,77,0,0.2); }
 .how-icon { font-size: 1.8rem; margin-bottom: 0.75rem; }
 .how-title {
     font-size: 1rem;
@@ -578,7 +592,7 @@ a.feature-card {
     background: white;
 }
 .cta-box {
-    background: linear-gradient(135deg, var(--primary) 0%, #5a3ba0 50%, var(--accent) 100%);
+    background: linear-gradient(135deg, #FF4D00 0%, #FF6A00 50%, #FF8100 100%);
     border-radius: 28px;
     padding: 4rem 3rem;
     color: white;
@@ -643,7 +657,7 @@ a.feature-card {
     text-align: center;
 }
 .footer-brand { display: flex; align-items: center; gap: 0.75rem; }
-.footer-logo img { width: 36px; height: 36px; object-fit: contain; }
+.footer-logo img { width: 38px; height: 38px; object-fit: contain; }
 .footer-brand-name {
     font-size: 1.1rem;
     font-weight: 700;
@@ -729,9 +743,9 @@ a.feature-card {
 <nav class="navbar" id="navbar">
     <a href="{{ route('landing') }}" class="nav-brand">
         <div class="logo-icon">
-            <img src="img/Icon.png" alt="Logo Mappy Path">
+            <img src="img/Icon.png" alt="Logo TKJPedia" style="width:48px;height:48px;object-fit:contain;">
         </div>
-        <span class="nav-name">Mappy Path</span>
+        <span class="nav-name">TKJPedia</span>
     </a>
     <div class="nav-actions">
         <a href="{{ route('login') }}" class="btn-nav-login">Masuk</a>
@@ -920,7 +934,7 @@ a.feature-card {
     <div class="cta-box reveal">
         <span class="cta-emoji">🚀</span>
         <h2 class="cta-title">Siap memulai perjalanan belajarmu?</h2>
-        <p class="cta-desc">Bergabung bersama 1K+ siswa SMK TKJ yang sudah belajar lebih terstruktur bersama Mappy Path. Gratis selamanya.</p>
+        <p class="cta-desc">Bergabung bersama 1K+ siswa SMK TKJ yang sudah belajar lebih terstruktur bersama TKJPedia. Gratis selamanya.</p>
         <a href="{{ route('register') }}" class="btn-cta-white">
             Daftar Sekarang — Gratis! ✨
         </a>
@@ -932,9 +946,9 @@ a.feature-card {
     <div class="footer-top">
         <div class="footer-brand">
             <div class="footer-logo">
-                <img src="img/Icon1.png" alt="Logo Mappy Path">
+                <img src="img/Icon1.png" alt="Logo TKJPedia">
             </div>
-            <span class="footer-brand-name">Mappy Path</span>
+            <span class="footer-brand-name">TKJPedia</span>
         </div>
         <p class="footer-tagline">Platform roadmap pembelajaran terstruktur untuk siswa SMK Teknik Komputer dan Jaringan berbasis Kurikulum Merdeka.</p>
         <div class="footer-socials">
@@ -962,7 +976,7 @@ a.feature-card {
         </div>
     </div>
     <div class="footer-bottom">
-        <span>© 2026 Mappy Path. All Rights Reserved.</span>
+        <span>© 2026 TKJPedia. All Rights Reserved.</span>
         <div class="footer-links">
             <a href="#">Privacy Policy</a>
             <a href="#">Terms of Use</a>
