@@ -571,6 +571,7 @@ class DashboardController extends Controller
 
         if ($eligibleBadge) {
             $user->badges()->attach($eligibleBadge->id, ['earned_at' => now()]);
+            $user->increment('total_xp', $eligibleBadge->xp_reward ?? 0);
             return $eligibleBadge;
         }
 
@@ -744,12 +745,14 @@ class DashboardController extends Controller
 
         $unlockedIds = \DB::table('user_badges')->where('user_id', $user->id)->pluck('badge_id')->toArray();
         $badges = \App\Models\Badge::all()->map(fn($b) => [
-            'id'       => $b->id,
-            'name'     => $b->name,
-            'desc'     => $b->description,
-            'icon'     => $b->icon ?? '🏅',
-            'xp'       => $b->xp_reward ?? 0,
-            'unlocked' => in_array($b->id, $unlockedIds),
+            'id'              => $b->id,
+            'name'            => $b->name,
+            'desc'            => $b->description,
+            'icon'            => $b->icon ?? '🏅',
+            'xp'              => $b->xp_reward ?? 0,
+            'unlocked'        => in_array($b->id, $unlockedIds),
+            'condition_type'  => $b->condition_type,
+            'condition_value' => $b->condition_value,
         ])->toArray();
 
         return view('dashboard.progress', compact(
