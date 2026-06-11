@@ -223,22 +223,38 @@
     }
 
     /* ===== STAT CARDS ===== */
-    .stat-cards {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.5rem;
+    .stat-cards{
+    display:grid;
+    grid-template-columns:repeat(5, minmax(0,1fr));
+    gap:1rem;
+    margin-bottom:1.5rem;
     }
+
+    .stat-card{
+    min-width:0;
+    }
+
+    .stat-value{
+        font-size:1.35rem;
+    }
+
+    .stat-label{
+        font-size:.75rem;
+    }
+
     .stat-card {
-        background: var(--white);
-        border-radius: var(--radius);
-        padding: 1.25rem;
-        border: 1px solid var(--gray-200);
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-        transition: all 0.2s;
-    }
+    background: var(--white);
+    border-radius: var(--radius);
+    padding: 1.1rem;
+    border: 1px solid var(--gray-200);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: .6rem;
+    transition: all .2s;
+    min-height: 170px; 
+}
+
     .stat-card:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
     .stat-card-header { display: flex; align-items: center; justify-content: space-between; }
     .stat-label { font-size: 0.8rem; color: var(--gray-400); font-weight: 500; }
@@ -251,8 +267,23 @@
         justify-content: center;
         font-size: 1.1rem;
     }
-    .stat-value { font-size: 1.5rem; font-weight: 700; color: var(--gray-800); line-height: 1; }
-    .stat-sub { font-size: 0.8rem; color: var(--gray-400); font-weight: 500; }
+   .stat-value{
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--gray-800);
+    line-height: 1.1;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.stat-sub{
+    font-size: .9rem;
+    color: var(--gray-400);
+    font-weight: 500;
+}
+
     .stat-progress { margin-top: 0.25rem; }
 
     /* ===== PROGRESS BAR ===== */
@@ -418,6 +449,17 @@
     .profile-drop-item.danger { color: #dc2626; }
     .profile-drop-item.danger:hover { background: #fef2f2; color: #dc2626; }
     .profile-drop-divider { height: 1px; background: var(--gray-100); margin: 0.35rem 0; }
+
+  .current-title{
+    font-size: 1.1rem !important; 
+    font-weight: 700;
+    line-height: 1.3;
+    min-height: 55px; 
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
 
     </style>
     @stack('styles')
