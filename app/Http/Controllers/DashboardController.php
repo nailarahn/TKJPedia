@@ -12,6 +12,7 @@ use App\Services\BadgeService;
 use App\Models\Stage;
 use App\Models\QuizAttempt;
 use App\Models\Badge;
+use App\Models\Quiz;
 
 
 class DashboardController extends Controller
@@ -100,6 +101,14 @@ class DashboardController extends Controller
             ->count();
 
         $totalTarget = $user->activeTargets()->count();
+        
+// KUIS SELESAI
+$kuisSelesai = QuizAttempt::where('user_id', $user->id)
+    ->where('is_passed', true)
+    ->distinct('quiz_id')
+    ->count();
+
+$totalKuis = Quiz::count();
 
         $weeklyMinutes = LearningLog::where('user_id', $user->id)
             ->whereBetween('log_date', [
@@ -133,6 +142,8 @@ class DashboardController extends Controller
             'totalMateri',
             'targetSelesai',
             'totalTarget',
+            'kuisSelesai',
+            'totalKuis',
         ));
     }
 
@@ -469,6 +480,18 @@ class DashboardController extends Controller
 
             // Tandai stage selesai
             $this->markStageCompleted($user, $stage);
+
+            // Update target kuis
+            $quizTarget = $user->targets()
+                ->where('roadmap_id', $roadmapId)
+                ->where('name', 'Menyelesaikan Kuis')
+                ->where('status', 'active')
+                ->first();
+
+            if ($quizTarget && !$alreadyPassedQuiz) {
+                $quizTarget->increment('current_value');
+                $quizTarget->checkAndUpdateStatus();
+            }
 
             // Beri XP hanya kalau belum pernah lulus kuis ini sebelumnya
             if (!$alreadyPassedQuiz) {
