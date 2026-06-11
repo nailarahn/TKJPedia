@@ -116,6 +116,77 @@ canvas { max-width: 100%; }
     font-weight: 700;
     padding: 1rem 1.5rem;
     border: none;
+
+    .current-title{
+    font-size:1rem;
+    font-weight:700;
+    line-height:1.3;
+    min-height:50px;
+    display:-webkit-box;
+    -webkit-line-clamp:2;
+    -webkit-box-orient:vertical;
+    overflow:hidden;
+}
+
+/* ===== GAMIFICATION STATS ===== */
+.gamification-bar{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:1rem;
+    margin-bottom:1.5rem;
+}
+
+.game-box{
+    background:linear-gradient(135deg,#fff,#fff7ed);
+    border:1.5px solid #ffe0bf;
+    border-radius:18px;
+    padding:1rem 1.2rem;
+    display:flex;
+    align-items:center;
+    gap:.9rem;
+    transition:.3s;
+}
+
+.game-box:hover{
+    transform:translateY(-4px);
+    box-shadow:0 12px 25px rgba(255,77,0,.12);
+}
+
+.game-icon{
+    width:55px;
+    height:55px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.5rem;
+    background:#fff3e6;
+}
+
+.game-title{
+    font-size:.75rem;
+    color:var(--gray-400);
+}
+
+.game-value{
+    font-size:1.2rem;
+    font-weight:700;
+    color:var(--gray-800);
+}
+
+.badge-progress{
+    background:linear-gradient(135deg,#ff6a00,#ff9b3d);
+    color:white;
+    padding:.4rem 1rem;
+    border-radius:99px;
+    font-size:.85rem;
+    font-weight:700;
+}
+
+.progress-chart{
+    position:relative;
+}
+
 }
 </style>
 @endpush
@@ -166,9 +237,9 @@ canvas { max-width: 100%; }
                 <span class="stat-label">Tahap saat ini</span>
                 <div class="stat-icon" style="background:#fff7ed;">📖</div>
             </div>
-            <div class="stat-value" style="font-size:1.1rem;font-weight:700;margin-top:.25rem;">
-                {{ $activeEnrollment?->roadmap?->title ?? 'Belum Memilih Roadmap' }}
-            </div>
+            <div class="stat-value current-title">
+    {{ $activeEnrollment?->roadmap?->title ?? 'Belum Memilih Roadmap' }}
+</div>
             <div class="stat-progress">
                 <div class="progress-bar">
                     <div class="progress-fill"
@@ -201,6 +272,31 @@ canvas { max-width: 100%; }
             </div>
         </div>
     </a>
+
+    {{-- KUIS SELESAI --}}
+<a href="{{ route('progress') }}" class="stat-card-link">
+    <div class="stat-card">
+        <div class="stat-card-header">
+            <span class="stat-label">Kuis Selesai</span>
+            <div class="stat-icon" style="background:#eef2ff;">🧠</div>
+        </div>
+
+        <div class="stat-value">
+            {{ $kuisSelesai ?? 0 }}
+            <span style="font-size:1rem;color:var(--gray-400);font-weight:500;">
+                /{{ $totalKuis ?? 0 }}
+            </span>
+        </div>
+
+        <div class="stat-progress">
+            <div class="progress-bar">
+                <div class="progress-fill"
+                     style="width:{{ ($totalKuis ?? 0) > 0 ? ($kuisSelesai / $totalKuis) * 100 : 0 }}%">
+                </div>
+            </div>
+        </div>
+    </div>
+</a>
 
     {{-- TARGET MINGGU --}}
     <a href="{{ route('target') }}" class="stat-card-link">
@@ -284,6 +380,7 @@ canvas { max-width: 100%; }
     </div>
 
 </div>
+
 
 <!-- GRAFIK PROGRESS -->
 <div class="card progress-card">
