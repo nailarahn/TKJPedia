@@ -256,14 +256,47 @@ body {
     color: var(--gray-800);
     width: 100%;
     max-width: 520px;
-    box-shadow: 0 8px 40px rgba(255,77,0,0.15), 0 2px 8px rgba(255,77,0,0.08);
-    border: 2.5px solid var(--accent);
+
+    border: 2px solid rgba(255,106,0,0.25);
+
+    box-shadow:
+        0 20px 50px rgba(255,77,0,0.15),
+        0 4px 12px rgba(255,77,0,0.08),
+        inset 0 1px 0 rgba(255,255,255,0.9);
+
     animation: floatCard 5s ease-in-out infinite;
     position: relative;
+    overflow: hidden;
 }
-@keyframes floatCard {
-    0%,100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
+
+.demo-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -120%;
+
+    width: 60%;
+    height: 100%;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,0.5),
+        transparent
+    );
+
+    transform: skewX(-20deg);
+    animation: shine 6s infinite;
+}
+
+@keyframes shine {
+    0% {
+        left: -120%;
+    }
+
+    100% {
+        left: 180%;
+    }
 }
 
 /* Avatar pakai ikon orang */
@@ -332,9 +365,10 @@ body {
 
 .demo-stats {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 0.75rem;
 }
+
 .demo-stat-box {
     background: #fff8f2;
     border-radius: 12px;
@@ -662,34 +696,49 @@ a.feature-card {
     font-size: 1.1rem;
     font-weight: 700;
 }
-.footer-tagline { font-size: 0.875rem; opacity: 0.5; margin-top: 0.4rem; max-width: 400px; line-height: 1.6; }
+.footer-tagline {
+    font-size: 0.95rem;
+    color: rgba(255,255,255,0.9);
+    margin-top: 0.4rem;
+    max-width: 500px;
+    line-height: 1.8;
+}
+
 .footer-socials { display: flex; gap: 0.75rem; margin-top: 1rem; }
 .social-btn {
-    width: 40px; height: 40px;
-    background: rgba(255,255,255,0.06);
-    border-radius: 10px;
+    width: 48px;
+    height: 48px;
+    background: rgba(255,255,255,0.12);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 0.8rem;
-    font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
-    border: 1px solid rgba(255,255,255,0.08);
-    color: rgba(255,255,255,0.7);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
     text-decoration: none;
+    backdrop-filter: blur(10px);
 }
-.social-btn:hover { background: rgba(255,255,255,0.15); color: white; transform: translateY(-2px); }
+
+.social-btn:hover {
+    background: white;
+    color: var(--primary);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(255,255,255,0.2);
+}
+
 .footer-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-top: 1.75rem;
-    font-size: 0.8rem;
-    opacity: 0.4;
+    font-size: 0.85rem;
+    color: rgba(255,255,255,0.85);
     flex-wrap: wrap;
     gap: 0.75rem;
 }
+
 .footer-links { display: flex; gap: 1.5rem; }
 .footer-links a { color: white; text-decoration: none; transition: opacity 0.2s; }
 .footer-links a:hover { opacity: 0.8; text-decoration: underline; }
@@ -733,6 +782,21 @@ a.feature-card {
 }
 @media (max-width: 400px) {
     .btn-cta-primary { width: 100%; justify-content: center; }
+}
+.tkj-alert {
+    border-radius: 24px !important;
+    border: 2px solid #FFB366 !important;
+    box-shadow: 0 20px 60px rgba(255,77,0,0.25) !important;
+}
+
+.swal2-title {
+    font-weight: 700 !important;
+}
+
+.swal2-confirm {
+    border-radius: 12px !important;
+    padding: 10px 24px !important;
+    font-weight: 600 !important;
 }
 </style>
 @endpush
@@ -784,6 +848,7 @@ a.feature-card {
             <div class="stat-check">✓</div>
             1k+ Siswa
         </div>
+
     </div>
 </section>
 
@@ -802,26 +867,32 @@ a.feature-card {
                 <div class="demo-user-name">Anatasha Berliane</div>
                 <div class="demo-user-stage">Jaringan Dasar — 75% Selesai</div>
             </div>
-            <div class="demo-badge">🔥 7 Hari streak</div>
+            <div class="demo-badge"><div class="demo-badge">
+    🔥 7 Hari Streak • 1.250 XP
+</div> </div>
         </div>
         <div class="demo-progress-row">
-            <span class="demo-progress-label">Progress Minggu Ini</span>
+            <span class="demo-progress-label">Progress Minggu Ini 🔥</span>
             <span class="demo-progress-value">19 Materi</span>
         </div>
         <div class="demo-bar">
             <div class="demo-bar-fill"></div>
         </div>
         <div class="demo-stats">
+           <div class="demo-stat-box">
+            <div class="demo-stat-value">19</div>
+            <div class="demo-stat-label">Materi Selesai</div>
+        </div>
             <div class="demo-stat-box">
-                <div class="demo-stat-value">19</div>
-                <div class="demo-stat-label">Materi</div>
-            </div>
-            <div class="demo-stat-box">
-                <div class="demo-stat-value orange">18h</div>
+                <div class="demo-stat-value orange">6h</div>
                 <div class="demo-stat-label">Minggu ini</div>
             </div>
             <div class="demo-stat-box">
-                <div class="demo-stat-value green">12</div>
+                <div class="demo-stat-value orange">4</div>
+                <div class="demo-stat-label">Kuis Selesai</div>
+            </div>
+            <div class="demo-stat-box">
+                <div class="demo-stat-value green">120</div>
                 <div class="demo-stat-label">Badge</div>
             </div>
         </div>
@@ -952,23 +1023,23 @@ a.feature-card {
         </div>
         <p class="footer-tagline">Platform roadmap pembelajaran terstruktur untuk siswa SMK Teknik Komputer dan Jaringan berbasis Kurikulum Merdeka.</p>
         <div class="footer-socials">
-            <a href="#" class="social-btn" title="Instagram">
+            <a href="#" onclick="fiturBelumTersedia(event)" class="social-btn" title="Instagram">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
                 </svg>
             </a>
-            <a href="#" class="social-btn" title="YouTube">
+            <a href="#" onclick="fiturBelumTersedia(event)" class="social-btn" title="YouTube">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z"/>
                     <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="var(--gray-800)"/>
                 </svg>
             </a>
-            <a href="#" class="social-btn" title="X (Twitter)">
+            <a href="#" onclick="fiturBelumTersedia(event)" class="social-btn" title="X (Twitter)">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
             </a>
-            <a href="#" class="social-btn" title="Website">
+            <a href="#" onclick="fiturBelumTersedia(event)" class="social-btn" title="Website">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
                 </svg>
@@ -977,14 +1048,32 @@ a.feature-card {
     </div>
     <div class="footer-bottom">
         <span>© 2026 TKJPedia. All Rights Reserved.</span>
-        <div class="footer-links">
-            <a href="#">Privacy Policy</a>
-            <a href="#">Terms of Use</a>
-        </div>
+       <div class="footer-links">
+    <a href="#" onclick="fiturBelumTersedia(event)">Kebijakan Privasi</a>
+    <a href="#" onclick="fiturBelumTersedia(event)">Panduan Penggunaan</a>
+</div>
     </div>
 </footer>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+
+function fiturBelumTersedia(event) {
+    event.preventDefault();
+
+    Swal.fire({
+        icon: 'info',
+        title: '🚀 Segera Hadir',
+        text: 'Fitur ini masih dalam tahap pengembangan oleh tim TKJPedia.',
+        confirmButtonText: 'Nantikan!',
+        confirmButtonColor: '#FF4D00',
+        background: '#fffaf5',
+        color: '#3b2415',
+        customClass: {
+            popup: 'tkj-alert'
+        }
+    });
+}
+
 const navbar = document.getElementById('navbar');
 window.addEventListener('scroll', () => {
     navbar.classList.toggle('scrolled', window.scrollY > 20);

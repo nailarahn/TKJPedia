@@ -62,12 +62,18 @@ body { background: var(--white); min-height: 100vh; }
 
 .left-header { display: flex; align-items: center; gap: 0.75rem; z-index: 1; }
 .left-logo {
-    width: 40px; height: 40px;
-    background: rgba(255,255,255,0.2);
-    border-radius: 12px;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; color: white; font-size: 0.95rem; object-fit: contain;
+    width: 64px;
+    height: 64px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(12px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
 }
+
 .left-brand { font-size: 1.2rem; font-weight: 700; color: white; }
 
 .left-content { z-index: 1; }
@@ -76,9 +82,9 @@ body { background: var(--white); min-height: 100vh; }
     font-weight: 700; color: white; line-height: 1.4; margin-bottom: 1rem;
 }
 .left-sub {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.75);
-    line-height: 1.6; margin-bottom: 1.5rem;
+    color: rgba(255,255,255,0.92);
+    font-size: 1rem;
+    font-weight: 500;
 }
 
 /* Stat mini cards */
@@ -89,30 +95,40 @@ body { background: var(--white); min-height: 100vh; }
     margin-top: 0.5rem;
 }
 .login-stat-card {
-    background: rgba(255,255,255,0.12);
-    border: 1px solid rgba(255,255,255,0.18);
-    border-radius: 14px;
+    background: rgba(255,255,255,0.15);
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 16px;
     padding: 1rem;
-    backdrop-filter: blur(4px);
-    -webkit-backdrop-filter: blur(4px);
-    transition: background 0.2s;
-}
-.login-stat-card:hover {
-    background: rgba(255,255,255,0.18);
-}
-.login-stat-number {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: white;
-    line-height: 1;
-}
-.login-stat-label {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.65);
-    margin-top: 0.25rem;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
 }
 
-.left-footer { font-size: 0.78rem; color: rgba(255,255,255,0.5); z-index: 1; }
+.login-stat-card:hover {
+    background: rgba(255,255,255,0.22);
+    border-color: rgba(255,255,255,0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+}
+
+.login-stat-number {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: white;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.15);
+}
+.login-stat-label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.92);
+    margin-top: 0.35rem;
+    font-weight: 500;
+}
+.left-footer {
+    font-size: 0.8rem;
+    color: white;
+    opacity: 0.85;
+}
 
 /* RIGHT PANEL */
 .login-right {
@@ -165,14 +181,32 @@ body { background: var(--white); min-height: 100vh; }
 .password-field .form-input { padding-right: 2.8rem; }
 
 .remember-row {
-    display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center; 
+    margin-top: 0.5rem;
+    margin-bottom: 1.8rem;
+    width: 100%;
 }
-.remember-row input[type="checkbox"] {
-    width: 16px; height: 16px;
-    accent-color: var(--primary); cursor: pointer;
-}
-.remember-row label { font-size: 0.85rem; color: var(--gray-500); cursor: pointer; }
 
+.remember-left {
+    display: flex;
+    align-items: center; 
+    gap: 0.5rem;
+}
+
+.remember-row input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+    cursor: pointer;
+}
+
+.remember-row label {
+    font-size: 0.85rem; 
+    color: var(--gray-500);
+    cursor: pointer;
+}
 .btn-login {
     width: 100%; padding: 0.9rem;
     background: var(--primary);
@@ -230,6 +264,18 @@ body { background: var(--white); min-height: 100vh; }
     .login-left { min-height: 180px; }
     .left-tagline { font-size: 1.2rem; }
 }
+
+.forgot-link {
+    color: var(--primary);
+    font-size: 0.85rem; /* ⬅️ samain ukuran dengan "Ingat saya" */
+    font-weight: 500;
+    text-decoration: none;
+}
+
+.forgot-link:hover {
+    text-decoration: underline;
+}
+
 </style>
 @endpush
 
@@ -239,9 +285,9 @@ body { background: var(--white); min-height: 100vh; }
     <!-- LEFT -->
     <div class="login-left">
         <div class="left-header">
-            <div class="left-logo">
-                <img src="img/Icon1.png" alt="Logo TKJPedia" style="width:48px;height:48px;object-fit:contain;">
-            </div>
+           <img src="img/Icon1.png"
+     alt="Logo TKJPedia"
+     style="width:50px;height:50px;object-fit:contain;">
             <span class="left-brand">TKJPedia</span>
         </div>
 
@@ -329,14 +375,19 @@ body { background: var(--white); min-height: 100vh; }
                     </div>
                 </div>
 
-                <div class="remember-row">
-                    <input type="checkbox" id="remember" name="remember">
-                    <label for="remember">Ingat saya</label>
-                </div>
+           <div class="remember-row">
+    <div class="remember-left">
+        <input type="checkbox" id="remember" name="remember">
+        <label for="remember">Ingat saya</label>
+    </div>
 
+    <a href="{{ route('password.request') }}" class="forgot-link">
+        Lupa Password?
+    </a>
+</div>
                 <button type="submit" class="btn-login">Masuk</button>
             </form>
-
+    
             <div class="register-row">
                 Tidak Punya Akun? <a href="{{ route('register') }}">Daftar</a>
             </div>
