@@ -7,6 +7,8 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\PengaturanController;
 use App\Http\Controllers\QuizController;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\ResetPasswordController;
 
 // Landing Page
 Route::get('/', function () {
@@ -24,6 +26,21 @@ Route::post('/logout', [RegisterController::class, 'logout'])->name('logout');
 
 // ── DASHBOARD (AUTH REQUIRED) ─────────────────────────
 Route::middleware('auth')->group(function () {
+   Route::get('/forgot-password',
+    [ForgotPasswordController::class, 'showLinkRequestForm']
+)->name('password.request');
+
+Route::post('/forgot-password',
+    [ForgotPasswordController::class, 'sendResetLinkEmail']
+)->name('password.email');
+
+Route::get('/reset-password/{token}',
+    [ResetPasswordController::class, 'showResetForm']
+)->name('password.reset');
+
+Route::post('/reset-password',
+    [ResetPasswordController::class, 'reset']
+)->name('password.update');
 
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
