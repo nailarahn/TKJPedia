@@ -102,13 +102,13 @@ class DashboardController extends Controller
 
         $totalTarget = $user->activeTargets()->count();
         
-// KUIS SELESAI
-$kuisSelesai = QuizAttempt::where('user_id', $user->id)
-    ->where('is_passed', true)
-    ->distinct('quiz_id')
-    ->count();
+        // KUIS SELESAI
+        $kuisSelesai = QuizAttempt::where('user_id', $user->id)
+            ->where('is_passed', true)
+            ->distinct('quiz_id')
+            ->count();
 
-$totalKuis = Quiz::count();
+        $totalKuis = Quiz::count();
 
         $weeklyMinutes = LearningLog::where('user_id', $user->id)
             ->whereBetween('log_date', [
@@ -290,6 +290,9 @@ $totalKuis = Quiz::count();
             ->where('roadmap_id', $roadmapId)
             ->firstOrFail();
 
+        // Ambil data stage
+        $stage = Stage::find($stageId);
+
         // Cek apakah baru pertama kali selesai (SEBELUM update)
         $existing = UserStage::where('user_id', $user->id)
             ->where('stage_id', $stageId)
@@ -306,10 +309,10 @@ $totalKuis = Quiz::count();
             ]
         );
 
-        // Tambah XP hanya kalau baru pertama kali selesai
+        // Tambah XP hanya kalau baru pertama kali selesai — 25 XP per tahap
         $xpEarned = 0;
         if (!$existing) {
-            $xpEarned = 50;
+            $xpEarned = 25;
             $user->increment('total_xp', $xpEarned);
         }
 
@@ -341,10 +344,12 @@ $totalKuis = Quiz::count();
             'activity'         => 'study',
         ]);
 
-        // Badge & Streak
+        // Badge & Streak — jalankan dulu, lalu refresh user supaya XP akurat
         $badgeService = new BadgeService();
         $badgeService->updateStreak($user);
-        $newBadge = $badgeService->checkAndAward($user);
+        $badgeService->checkAndAward($user);
+        $newBadge = null;
+        $user = $user->fresh();
 
         // Auto update target
         $activeTarget = $user->targets()
@@ -371,9 +376,9 @@ $totalKuis = Quiz::count();
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
                 'message'   => 'Stage completed!',
-                'xp'        => $user->fresh()->total_xp,
+                'xp'        => $user->total_xp,
                 'xp_earned' => $xpEarned,
-                'new_badge' => $newBadge ? $newBadge->name : null,
+                'new_badge' => $newBadge,
                 'next_url'  => $nextUrl,
             ]);
         }
@@ -466,16 +471,15 @@ $totalKuis = Quiz::count();
             'completed_at'    => now(),
         ]);
 
-        // Kalau lulus: cek dulu apakah sudah pernah selesai (SEBELUM markStageCompleted)
         $xpEarned = 0;
         $newBadge = null;
 
         if ($isPassed) {
-            // Cek apakah user sudah pernah LULUS KUIS INI sebelumnya (bukan cek stage)
+            // Cek apakah user sudah pernah LULUS KUIS INI sebelumnya
             $alreadyPassedQuiz = QuizAttempt::where('user_id', $user->id)
                 ->where('quiz_id', $quiz->id)
                 ->where('is_passed', true)
-                ->where('id', '!=', $attempt->id) // exclude attempt yang baru saja dibuat
+                ->where('id', '!=', $attempt->id)
                 ->exists();
 
             // Tandai stage selesai
@@ -493,10 +497,16 @@ $totalKuis = Quiz::count();
                 $quizTarget->checkAndUpdateStatus();
             }
 
-            // Beri XP hanya kalau belum pernah lulus kuis ini sebelumnya
+            // Beri XP hanya kalau belum pernah lulus kuis ini — 30 XP
             if (!$alreadyPassedQuiz) {
-                $xpEarned = $quiz->points_reward ?? 75;
+                $xpEarned = $quiz->points_reward ?? 30;
                 $user->increment('total_xp', $xpEarned);
+
+                // Bonus +10 XP kalau nilai sempurna 100
+                if ($score === 100) {
+                    $user->increment('total_xp', 10);
+                    $xpEarned += 10;
+                }
             }
 
             // Cek badge

@@ -339,7 +339,15 @@
                 </div>
                 <div class="stage-info">
                     <div class="stage-title">{{ $stage->title }}</div>
-                    <div class="stage-meta">{{ $stage->getTypeLabel() }} · {{ $stage->estimated_minutes }} menit</div>
+                 <div class="stage-meta">
+                {{ $stage->getTypeLabel() }} · {{ $stage->estimated_minutes }} menit
+                @if($stage->xp_reward)
+                    · <span style="color:var(--primary);font-weight:700;">+{{ $stage->xp_reward }} XP</span>
+                @endif
+                @if($stage->badge_reward)
+                    · <span style="background:#fef3c7;color:#d97706;font-size:0.72rem;font-weight:600;padding:0.1rem 0.5rem;border-radius:50px;">🏅 {{ $stage->badge_reward }}</span>
+                @endif
+            </div>
                 </div>
                 <div class="stage-action {{ $isDone ? 'done-icon' : ($isLocked ? 'lock-icon' : 'arrow-icon') }}">
                     @if($isDone)

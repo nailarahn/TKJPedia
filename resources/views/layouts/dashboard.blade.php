@@ -630,15 +630,6 @@ function showTKJReward(data) {
     else { badgeInfo.style.display = 'none'; }
     document.getElementById('tkj-reward-badge-wrap').style.background = data.bgColor || '#efe9ff';
 
-    // Update XP topbar
-    if (data.xp) {
-        const xpEl = document.getElementById('topbar-xp');
-        if (xpEl) {
-            const cur = parseInt(xpEl.textContent) || 0;
-            xpEl.textContent = (cur + data.xp) + ' XP';
-        }
-    }
-
     spawnConfetti();
     overlay.style.display = 'block';
     popup.style.display   = 'block';

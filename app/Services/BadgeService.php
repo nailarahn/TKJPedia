@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Badge;
 use App\Models\User;
 use App\Models\UserStage;
+use App\Models\UserRoadmap;
 
 class BadgeService
 {
@@ -14,10 +15,9 @@ class BadgeService
             ->where('is_completed', true)
             ->count();
 
-        $roadmapsDone = UserStage::where('user_id', $user->id)
-            ->where('is_completed', true)
-            ->distinct('roadmap_id')
-            ->count('roadmap_id');
+       $roadmapsDone = \App\Models\UserRoadmap::where('user_id', $user->id)
+        ->where('status', 'completed')
+        ->count();
 
         $streak = $user->streak_days ?? 0;
 

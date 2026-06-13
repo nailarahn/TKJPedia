@@ -690,20 +690,49 @@ a.feature-card {
     border-bottom: 1px solid rgba(255,255,255,0.08);
     text-align: center;
 }
-.footer-brand { display: flex; align-items: center; gap: 0.75rem; }
-.footer-logo img { width: 38px; height: 38px; object-fit: contain; }
-.footer-brand-name {
-    font-size: 1.1rem;
-    font-weight: 700;
-}
-.footer-tagline {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.9);
-    margin-top: 0.4rem;
-    max-width: 500px;
-    line-height: 1.8;
+.footer-brand{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
 }
 
+.footer-logo{
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: rgba(255,255,255,.18);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:1px solid rgba(255,255,255,.15);
+}
+
+.footer-logo img{
+    width: 42px;
+    height: 42px;
+    object-fit: contain;
+}
+
+.footer-brand-name{
+    margin: 0;
+    padding: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    position: relative;
+    top: -1px;
+}
+.footer-tagline{
+    font-size: .95rem;
+    color: rgba(255,255,255,.74);
+    line-height: 1.8;
+    max-width: 500px;
+    margin-top: .4rem;
+    font-weight: 400;
+}
 .footer-socials { display: flex; gap: 0.75rem; margin-top: 1rem; }
 .social-btn {
     width: 48px;
@@ -734,14 +763,57 @@ a.feature-card {
     align-items: center;
     padding-top: 1.75rem;
     font-size: 0.85rem;
-    color: rgba(255,255,255,0.85);
+    color: rgba(255,255,255,0.8);
     flex-wrap: wrap;
     gap: 0.75rem;
 }
+.footer-bottom{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding-top:1.8rem;
+    border-top:1px solid rgba(255,255,255,.1);
+}
 
-.footer-links { display: flex; gap: 1.5rem; }
-.footer-links a { color: white; text-decoration: none; transition: opacity 0.2s; }
-.footer-links a:hover { opacity: 0.8; text-decoration: underline; }
+.footer-copy{
+    color:rgba(255,255,255,.75);
+    font-size:.92rem;
+}
+
+.footer-links{
+    display:flex;
+    align-items:center;
+    gap:2rem;
+}
+
+.footer-links a{
+    color:rgba(255,255,255,.75);
+    text-decoration:none;
+    font-size:.92rem;
+    font-weight:500;
+    position:relative;
+    transition:.3s;
+}
+
+.footer-links a::after{
+    content:'';
+    position:absolute;
+    left:0;
+    bottom:-5px;
+    width:0;
+    height:2px;
+    border-radius:99px;
+    background:white;
+    transition:.3s;
+}
+
+.footer-links a:hover{
+    color:white;
+}
+
+.footer-links a:hover::after{
+    width:100%;
+}
 
 /* ─── ANIMATIONS ─── */
 @keyframes fadeUp {
@@ -1048,10 +1120,15 @@ a.feature-card {
     </div>
     <div class="footer-bottom">
         <span>© 2026 TKJPedia. All Rights Reserved.</span>
-       <div class="footer-links">
-    <a href="#" onclick="fiturBelumTersedia(event)">Kebijakan Privasi</a>
-    <a href="#" onclick="fiturBelumTersedia(event)">Panduan Penggunaan</a>
-</div>
+        <div class="footer-links">
+        <a href="#" onclick="fiturBelumTersedia(event)">
+            Kebijakan Privasi
+        </a>
+
+        <a href="#" onclick="fiturBelumTersedia(event)">
+            Panduan Penggunaan
+        </a>
+    </div>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

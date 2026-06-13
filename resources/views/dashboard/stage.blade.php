@@ -48,7 +48,7 @@
 }
 .yt-thumb .thumb-title {
     font-size: clamp(.95rem, 2.5vw, 1.5rem); font-weight: 800;
-    color: #ffe0bf; text-align: center; padding: 0 1.5rem; line-height: 1.3; margin-bottom: .75rem; /* FIX: was #c4a8f0 ungu */
+    color: #ffe0bf; text-align: center; padding: 0 1.5rem; line-height: 1.3; margin-bottom: .75rem;
     text-shadow: 0 2px 12px rgba(0,0,0,.4);
 }
 .yt-thumb .thumb-sub { 
@@ -97,7 +97,7 @@
 .video-meta-row span { display: flex; align-items: center; gap: .35rem; }
 
 .learning-box {
-    background: var(--gray-100); border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: 1.25rem; /* FIX: was #f4f1ff ungu */
+    background: var(--gray-100); border-radius: 12px; padding: 1.1rem 1.25rem; margin-bottom: 1.25rem;
 }
 .learning-box-title {
     font-size: .875rem; font-weight: 700; color: var(--primary);
@@ -132,7 +132,7 @@
 .complete-btn:hover {
     background: var(--primary-light);
     transform: translateY(-1px);
-    box-shadow: 0 6px 20px var(--accent-glow); /* FIX: was rgba(55,36,102,.3) ungu */
+    box-shadow: 0 6px 20px var(--accent-glow);
 }
 .complete-btn.done { background: #ecfdf5; color: #16a34a; cursor: default; }
 .complete-btn.done:hover { transform: none; box-shadow: none; }
@@ -186,7 +186,7 @@
 }
 .materi-item:hover { background: var(--gray-100); }
 .materi-item.is-active {
-    background: var(--gray-100); /* FIX: was #f4f1ff ungu */
+    background: var(--gray-100);
     border-left-color: var(--primary);
 }
 .materi-icon { width: 18px; height: 18px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
@@ -212,14 +212,14 @@
     flex-wrap: wrap;
     gap: 1rem;
     padding: 1.25rem 1.5rem;
-    background: var(--gray-100);          /* FIX: was #E6F1FB biru */
-    border: 1.5px solid var(--gray-200);  /* FIX: was #B5D4F4 biru */
+    background: var(--gray-100);
+    border: 1.5px solid var(--gray-200);
     border-radius: 16px;
     margin-top: 1.5rem;
 }
-.quiz-cta-info { display: flex; align-items: center; gap: .75rem; font-size: 1.25rem; color: var(--accent); }   /* FIX: was #185FA5 biru */
-.quiz-cta-title { font-size: .95rem; font-weight: 600; color: var(--gray-800); }                                 /* FIX: was #0C447C biru */
-.quiz-cta-sub   { font-size: .8rem; color: var(--gray-500); }                                                    /* FIX: was #185FA5 biru */
+.quiz-cta-info { display: flex; align-items: center; gap: .75rem; font-size: 1.25rem; color: var(--accent); }
+.quiz-cta-title { font-size: .95rem; font-weight: 600; color: var(--gray-800); }
+.quiz-cta-sub   { font-size: .8rem; color: var(--gray-500); }
 
 .btn-start-quiz {
     display: inline-flex;
@@ -333,6 +333,17 @@
                         {{ $stage->getTypeLabel() }}
                     </span>
                     <span>🎯 {{ $roadmap->title }}</span>
+                    {{-- ✅ TAMBAHAN: Info XP reward --}}
+                    @if($stage->xp_reward)
+                    <span style="color:var(--primary);font-weight:700;">
+                        ⚡ +{{ $stage->xp_reward }} XP
+                    </span>
+                    @endif
+                    @if($stage->badge_reward)
+                    <span style="background:#fef3c7;color:#d97706;font-size:0.72rem;font-weight:600;padding:0.1rem 0.5rem;border-radius:50px;">
+                        🏅 {{ $stage->badge_reward }}
+                    </span>
+                    @endif
                 </div>
 
 
@@ -371,7 +382,11 @@
                 <i class="ti ti-help-circle"></i>
                 <div>
                     <div class="quiz-cta-title">Uji Pemahamanmu!</div>
-                    <div class="quiz-cta-sub">{{ $stage->quiz->questions->count() }} soal · Nilai lulus {{ $stage->quiz->passing_score }}%</div>
+                    {{-- ✅ TAMBAHAN: Info XP kuis --}}
+                    <div class="quiz-cta-sub">
+                        {{ $stage->quiz->questions->count() }} soal · Nilai lulus {{ $stage->quiz->passing_score }}%
+                        · <span style="color:var(--primary);font-weight:700;">+30 XP jika lulus</span>
+                    </div>
                 </div>
             </div>
             <a href="{{ route('roadmap.quiz', [$roadmapId, $stage->id]) }}" class="btn-start-quiz">
@@ -504,19 +519,22 @@ async function handleCompleteVideo() {
         });
 
         const data = await res.json();
-        const xpEarned = data.xp_earned ?? 50;
-
+        {{-- ✅ TAMBAHAN: fallback ke xp_reward dari stage --}}
+       const xpEarned = {{ $stage->xp_reward ?? 25 }};
+ 
+        localStorage.setItem('user_xp_cache', data.xp);
+ 
         // Update XP di topbar langsung
         const xpEl = document.querySelector('.topbar-right div span:last-child');
         if (xpEl && data.xp !== undefined) {
             xpEl.textContent = data.xp + ' XP';
         }
 
-        // Ubah tombol jadi "selesai"
+       // Ubah tombol jadi "selesai"
         btn.className = 'complete-btn done';
         btn.disabled  = true;
         btn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg> Materi Sudah Diselesaikan ✓';
-
+ 
         // Tampilkan popup reward
         showTKJReward({
             type:    data.new_badge ? 'Badge Baru Diraih! 🏆' : 'Video Selesai! 🎬',
@@ -528,15 +546,18 @@ async function handleCompleteVideo() {
             bgColor: data.new_badge ? '#ffe7ef' : '#efe9ff',
         });
 
+       
         // Tombol popup lanjut ke materi berikutnya
         const popupBtn = document.querySelector('#tkj-reward-popup button');
         popupBtn.textContent = '{{ $nextStage ?? false ? "Lanjut ke Materi Berikutnya 🚀" : "Kembali ke Roadmap 🗺️" }}';
         popupBtn.onclick = function() {
             closeTKJReward();
-            window.location.href = NEXT_URL;
+           setTimeout(() => {
+                window.location.href = NEXT_URL;
+            }, 300);
         };
 
-    } catch (err) {
+   } catch (err) {
         btn.disabled = false;
         btn.textContent = '🎬 Tandai Selesai & Lanjut →';
         alert('Gagal menyimpan, coba lagi.');

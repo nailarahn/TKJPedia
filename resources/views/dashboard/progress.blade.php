@@ -109,6 +109,15 @@
 .locked-bar-fill{ height:100%; background:linear-gradient(90deg,#b09fff,#6C4CF1); border-radius:10px; }
 .locked-progress-text{ font-size:.7rem; color:var(--gray-400); font-weight:600; }
 
+/* ── card "hampir" — border oranye & tidak grayscale ── */
+.almost-card{
+    border:1.5px dashed #ffb347 !important;
+    background:linear-gradient(160deg,#fffdf7 0%,#fff8ed 100%) !important;
+    cursor:default !important;
+}
+.almost-card:hover{ transform:none !important; box-shadow:none !important; border-color:#ffb347 !important; }
+.almost-overlay{ position:absolute; top:.8rem; right:.8rem; font-size:1rem; }
+
 /* ───────────────── BIG MODAL ───────────────── */
 .big-modal{
     position:fixed; inset:0;
@@ -223,15 +232,24 @@
 
 /* ── BADGE GALLERY ── */
 .badge-gallery{ display:grid; grid-template-columns:repeat(3,1fr); gap:.8rem; }
-.badge-gal-card{ border-radius:18px; padding:1.1rem .8rem; text-align:center; border:1.5px solid rgba(108,76,241,.15); background:linear-gradient(160deg,#fdfcff,#f5f0ff); transition:.25s; }
+.badge-gal-card{
+    border-radius:18px; padding:1.1rem .8rem; text-align:center;
+    border:1.5px solid rgba(108,76,241,.15);
+    background:linear-gradient(160deg,#fdfcff,#f5f0ff); transition:.25s;
+}
 .badge-gal-card:hover{ transform:translateY(-4px); box-shadow:0 12px 30px rgba(108,76,241,.15); }
 .badge-gal-card.locked-gal{ opacity:.4; filter:grayscale(1); }
+.badge-gal-card.almost-gal{ border:1.5px dashed #ffb347; background:linear-gradient(160deg,#fffdf7,#fff8ed); }
 .badge-gal-icon{ font-size:2.2rem; margin-bottom:.5rem; }
 .badge-gal-name{ font-size:.78rem; font-weight:800; color:var(--gray-800); }
 .badge-gal-xp  { font-size:.68rem; color:#6C4CF1; font-weight:700; margin-top:.2rem; }
 .badge-gal-status{ display:inline-block; font-size:.62rem; font-weight:700; padding:.18rem .55rem; border-radius:20px; margin-top:.4rem; }
 .status-done  { background:#e7fff1; color:#18b56a; }
+.status-almost{ background:#fff3e0; color:#e08c00; }
 .status-locked{ background:#f1f1f1; color:#9b9b9b; }
+.badge-gal-bar{ height:4px; background:#eee; border-radius:10px; overflow:hidden; margin:.5rem 0 .2rem; }
+.badge-gal-bar-fill{ height:100%; background:linear-gradient(90deg,#ffb347,#e08c00); border-radius:10px; }
+.badge-gal-progress{ font-size:.62rem; color:#e08c00; font-weight:700; }
 
 /* ── ACHIEVEMENT MODAL ── */
 .achievement-modal{
@@ -341,15 +359,49 @@
         </div>
     </div>
 
-    {{-- ACHIEVEMENTS (dinamis dari DB, urut xp_reward ASC) --}}
+    {{-- ACHIEVEMENTS --}}
     <div class="achievement-box">
         <div class="achievement-title">🏆 Pencapaian</div>
         <div class="achievement-sub">Badge dan achievements yang sudah diraih</div>
 
         <div class="achievement-grid">
-            @foreach(collect($badges)->sortBy('xp') as $b)
+            @php
+                $sortedBadges = collect($badges)
+                    ->map(function ($b) use ($materiSelesai, $streakNow) {
+                        $current = 0;
+                        $target  = $b['condition_value'] ?? 1;
+
+                        if ($b['condition_type'] === 'stages_done') {
+                            $current = $materiSelesai;
+                        } elseif ($b['condition_type'] === 'streak') {
+                            $current = $streakNow;
+                        } elseif ($b['condition_type'] === 'roadmap_done') {
+                            $current = \App\Models\UserRoadmap::where('user_id', auth()->id())->where('status','completed')->count();
+                        }
+
+                        $progress = $target > 0 ? ($current / $target) : 0;
+
+                        if ($b['unlocked']) {
+                            $b['level'] = 0; // sudah dapat
+                        } elseif ($progress > 0) {
+                            $b['level'] = 1; // hampir
+                        } else {
+                            $b['level'] = 2; // belum
+                        }
+
+                        $b['_current'] = $current;
+                        $b['_target']  = $target;
+
+                        return $b;
+                    })
+                    ->sortBy('xp')
+                    ->sortBy('level')
+                    ->values();
+            @endphp
+
+            @foreach($sortedBadges as $b)
                 @if($b['unlocked'])
-                    {{-- Card diraih --}}
+                    {{-- ✅ Card SUDAH DAPAT --}}
                     <div class="achievement-card"
                          onclick="openAchievement(
                              '{{ $b['icon'] }}',
@@ -372,19 +424,30 @@
                             <span class="achv-date">{{ \Carbon\Carbon::now()->translatedFormat('M Y') }}</span>
                         </div>
                     </div>
-                @else
-                    {{-- Card locked --}}
+
+                @elseif($b['level'] === 1)
+                    {{-- 🔥 Card HAMPIR --}}
                     @php
-                        $current = 0;
-                        $target  = $b['condition_value'] ?? 1;
-                        if ($b['condition_type'] === 'stages_done') {
-                            $current = $materiSelesai;
-                        } elseif ($b['condition_type'] === 'roadmap_done') {
-                            $current = \App\Models\UserRoadmap::where('user_id', auth()->id())->where('status','completed')->count();
-                        } elseif ($b['condition_type'] === 'streak') {
-                            $current = $streakNow;
-                        }
-                        $pct = $target > 0 ? min(100, round(($current / $target) * 100)) : 0;
+                        $pct   = min(100, round(($b['_current'] / $b['_target']) * 100));
+                        $label = $b['condition_type'] === 'stages_done' ? 'modul'
+                               : ($b['condition_type'] === 'roadmap_done' ? 'roadmap' : 'hari');
+                    @endphp
+                    <div class="achievement-card almost-card">
+                        <div class="almost-overlay">🔥</div>
+                        <div class="achievement-badge-wrap purple-wrap" style="opacity:.7">
+                            <div class="badge-emoji">{{ $b['icon'] }}</div>
+                        </div>
+                        <div class="achievement-name" style="opacity:.8">{{ $b['name'] }}</div>
+                        <div class="achievement-desc" style="opacity:.7">{{ $b['desc'] }}</div>
+                        <div class="locked-bar">
+                            <div class="locked-bar-fill" style="width:{{ $pct }}%"></div>
+                        </div>
+                        <div class="locked-progress-text" style="color:#e08c00">{{ $b['_current'] }} / {{ $b['_target'] }} {{ $label }}</div>
+                    </div>
+
+                @else
+                    {{-- 🔒 Card BELUM --}}
+                    @php
                         $label = $b['condition_type'] === 'stages_done' ? 'modul'
                                : ($b['condition_type'] === 'roadmap_done' ? 'roadmap' : 'hari');
                     @endphp
@@ -396,9 +459,9 @@
                         <div class="achievement-name" style="opacity:.45">{{ $b['name'] }}</div>
                         <div class="achievement-desc" style="opacity:.4">{{ $b['desc'] }}</div>
                         <div class="locked-bar">
-                            <div class="locked-bar-fill" style="width:{{ $pct }}%"></div>
+                            <div class="locked-bar-fill" style="width:0%"></div>
                         </div>
-                        <div class="locked-progress-text">{{ $current }} / {{ $target }} {{ $label }}</div>
+                        <div class="locked-progress-text">0 / {{ $b['_target'] }} {{ $label }}</div>
                     </div>
                 @endif
             @endforeach
@@ -586,16 +649,65 @@ function buildJamContent() {
 }
 
 function buildBadgeContent() {
-    const sorted  = [...badgesData].sort((a, b) => a.xp - b.xp);
+    // Urutkan: sudah dapat → hampir → belum, lalu per xp
+    const sorted = [...badgesData].sort((a, b) => {
+       function level(badge) {
+        if (badge.unlocked) return 0;
+        const target = badge.condition_value ?? 1;
+        let current = 0;
+        if (badge.condition_type === 'stages_done')  current = completedStages.length;
+        else if (badge.condition_type === 'streak')  current = streakNow;
+        else if (badge.condition_type === 'roadmap_done') current = badgesData.filter(b => b.condition_type === 'roadmap_done' && b.unlocked).length || 0;  // ✅ TAMBAH INI
+        return current > 0 ? 1 : 2;
+    }
+        const la = level(a), lb = level(b);
+        if (la !== lb) return la - lb;
+        return a.xp - b.xp;
+    });
+
     const earned  = sorted.filter(b => b.unlocked).length;
     const totalXp = sorted.filter(b => b.unlocked).reduce((s, b) => s + (b.xp || 0), 0);
-    const cards   = sorted.map(b => `
-    <div class="badge-gal-card ${b.unlocked ? '' : 'locked-gal'}">
-        <div class="badge-gal-icon">${b.icon}</div>
-        <div class="badge-gal-name">${b.name}</div>
-        <div class="badge-gal-xp">+${b.xp} XP</div>
-        <div class="badge-gal-status ${b.unlocked ? 'status-done' : 'status-locked'}">${b.unlocked ? '✓ Diraih' : '🔒 Locked'}</div>
-    </div>`).join('');
+
+    const cards = sorted.map(b => {
+    const target = b.condition_value ?? 1;
+    let current = 0;
+    if (b.condition_type === 'stages_done')  current = completedStages.length;
+    else if (b.condition_type === 'streak')  current = streakNow;
+    else if (b.condition_type === 'roadmap_done') current = badgesData.filter(b => b.condition_type === 'roadmap_done' && b.unlocked).length || 0;  // ✅ TAMBAH INI
+    const pct     = Math.min(100, Math.round((current / target) * 100));
+    const label   = b.condition_type === 'streak' ? 'hari'
+                  : b.condition_type === 'roadmap_done' ? 'roadmap' : 'modul';
+    const isClose = !b.unlocked && current > 0;
+
+        if (b.unlocked) {
+            return `
+            <div class="badge-gal-card">
+                <div class="badge-gal-icon">${b.icon}</div>
+                <div class="badge-gal-name">${b.name}</div>
+                <div class="badge-gal-xp">+${b.xp} XP</div>
+                <div class="badge-gal-status status-done">✓ Diraih</div>
+            </div>`;
+        } else if (isClose) {
+            return `
+            <div class="badge-gal-card almost-gal">
+                <div class="badge-gal-icon">${b.icon}</div>
+                <div class="badge-gal-name">${b.name}</div>
+                <div class="badge-gal-xp">+${b.xp} XP</div>
+                <div class="badge-gal-bar"><div class="badge-gal-bar-fill" style="width:${pct}%"></div></div>
+                <div class="badge-gal-progress">${current} / ${target} ${label}</div>
+                <div class="badge-gal-status status-almost">🔥 Hampir!</div>
+            </div>`;
+        } else {
+            return `
+            <div class="badge-gal-card locked-gal">
+                <div class="badge-gal-icon">${b.icon}</div>
+                <div class="badge-gal-name">${b.name}</div>
+                <div class="badge-gal-xp">+${b.xp} XP</div>
+                <div class="badge-gal-status status-locked">🔒 Belum</div>
+            </div>`;
+        }
+    }).join('');
+
     return `
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
         <div style="font-size:.78rem;color:var(--gray-400);font-weight:600;">${earned} dari ${badgesData.length} badge diraih</div>

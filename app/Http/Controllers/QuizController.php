@@ -97,8 +97,14 @@ class QuizController extends Controller
             $this->markStageCompleted($user, $stage);
 
             // Tambah XP hanya kalau baru pertama kali lulus
-            if (!$alreadyCompleted) {
-                $xpEarned = $quiz->points_reward ?? 50;
+           if (!$alreadyCompleted) {
+                $xpEarned = $quiz->points_reward ?? 30;
+
+                // Bonus nilai sempurna
+                if ($score == 100) {
+                    $xpEarned += 10;
+                }
+
                 $user->increment('total_xp', $xpEarned);
             }
 
